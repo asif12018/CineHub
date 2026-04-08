@@ -53,6 +53,8 @@ enum SubscriptionStatus {
 
 enum PurchaseType {
   SUBSCRIPTION
+  RENTAL
+  ONE_TIME_BUY
 }
 
 enum PaymentStatus {

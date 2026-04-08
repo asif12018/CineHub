@@ -225,6 +225,8 @@ exports.Prisma.MediaScalarFieldEnum = {
   avgRating: 'avgRating',
   totalRatings: 'totalRatings',
   totalReviews: 'totalReviews',
+  rentPrice: 'rentPrice',
+  buyPrice: 'buyPrice',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -300,39 +302,14 @@ exports.Prisma.CommentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.SubscriptionPlanConfigScalarFieldEnum = {
-  id: 'id',
-  plan: 'plan',
-  price: 'price',
-  currency: 'currency',
-  durationDays: 'durationDays',
-  description: 'description',
-  isActive: 'isActive',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.SubscriptionScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  plan: 'plan',
-  status: 'status',
-  startDate: 'startDate',
-  endDate: 'endDate',
-  stripeSubscriptionId: 'stripeSubscriptionId',
-  stripeCustomerId: 'stripeCustomerId',
-  cancelledAt: 'cancelledAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.PurchaseScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  subscriptionId: 'subscriptionId',
+  mediaId: 'mediaId',
   type: 'type',
   amount: 'amount',
   currency: 'currency',
+  accessExpiresAt: 'accessExpiresAt',
   paymentStatus: 'paymentStatus',
   paymentProvider: 'paymentProvider',
   providerTxnId: 'providerTxnId',
@@ -401,20 +378,10 @@ exports.ReviewStatus = exports.$Enums.ReviewStatus = {
   UNPUBLISHED: 'UNPUBLISHED'
 };
 
-exports.SubscriptionPlan = exports.$Enums.SubscriptionPlan = {
-  MONTHLY: 'MONTHLY',
-  YEARLY: 'YEARLY'
-};
-
-exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
-  ACTIVE: 'ACTIVE',
-  CANCELLED: 'CANCELLED',
-  EXPIRED: 'EXPIRED',
-  PAST_DUE: 'PAST_DUE'
-};
-
 exports.PurchaseType = exports.$Enums.PurchaseType = {
-  SUBSCRIPTION: 'SUBSCRIPTION'
+  SUBSCRIPTION: 'SUBSCRIPTION',
+  RENTAL: 'RENTAL',
+  ONE_TIME_BUY: 'ONE_TIME_BUY'
 };
 
 exports.PaymentStatus = exports.$Enums.PaymentStatus = {
@@ -443,8 +410,6 @@ exports.Prisma.ModelName = {
   ReviewTag: 'ReviewTag',
   ReviewLike: 'ReviewLike',
   Comment: 'Comment',
-  SubscriptionPlanConfig: 'SubscriptionPlanConfig',
-  Subscription: 'Subscription',
   Purchase: 'Purchase'
 };
 

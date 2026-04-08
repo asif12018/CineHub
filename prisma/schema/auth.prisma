@@ -26,7 +26,6 @@ model User {
   reviewLikes     ReviewLike[]
   comments        Comment[]
   watchlist       WatchlistItem[]
-  subscriptions   Subscription[]
   purchases       Purchase[]
   notifications   Notification[]
 
