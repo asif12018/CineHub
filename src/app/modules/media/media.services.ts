@@ -2,6 +2,7 @@ import status from "http-status";
 import { prisma } from "../../lib/prisma"; // Adjust path to your prisma instance
 import AppError from "../../../errorHelpers/AppError"; // Adjust path to your error handler
 import { ICreateMedia, IUpdateMedia } from "./media.interface"; // Adjust path to your interfaces
+import { deleteFileFromCloudinary } from "../../utils/cloudinary.config";
 
 // =============================================================
 // 1. CREATE MEDIA
@@ -87,6 +88,18 @@ const updateMedia = async (id: string, payload: IUpdateMedia) => {
     ...mediaData 
   } = payload;
 
+  //checking if the movie exist
+
+  const isTheMovieExist = await prisma.media.findFirst({
+    where:{
+      id: id
+    }
+  })
+
+  if(!isTheMovieExist){
+    throw new AppError(status.NOT_FOUND, "Media not found.");
+  }
+
   const result = await prisma.$transaction(async (tx) => {
     // Check if the movie actually exists first
     const isMediaExist = await tx.media.findUnique({ where: { id } });
@@ -138,7 +151,18 @@ const updateMedia = async (id: string, payload: IUpdateMedia) => {
     });
 
     return updatedMedia;
+  },{
+    maxWait: 5000,
+    timeout:10000
   });
+   //deleting old photo from cloudinary
+  if(isTheMovieExist.backdropUrl){
+    await deleteFileFromCloudinary(isTheMovieExist.backdropUrl)
+  }
+
+  if(isTheMovieExist.posterUrl){
+    await deleteFileFromCloudinary(isTheMovieExist.posterUrl);
+  }
 
   return result;
 };
@@ -190,6 +214,8 @@ const deleteMedia = async (id: string) => {
   const result = await prisma.media.delete({
     where: { id },
   });
+
+ 
 
   return result;
 };
