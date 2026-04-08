@@ -156,11 +156,11 @@ const updateMedia = async (id: string, payload: IUpdateMedia) => {
     timeout:10000
   });
    //deleting old photo from cloudinary
-  if(isTheMovieExist.backdropUrl){
+  if(isTheMovieExist.backdropUrl && mediaData.backdropUrl){
     await deleteFileFromCloudinary(isTheMovieExist.backdropUrl)
   }
 
-  if(isTheMovieExist.posterUrl){
+  if(isTheMovieExist.posterUrl && mediaData.posterUrl){
     await deleteFileFromCloudinary(isTheMovieExist.posterUrl);
   }
 
