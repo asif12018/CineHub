@@ -1,0 +1,129 @@
+// =============================================================
+// MEDIA LIBRARY
+// =============================================================
+
+model Genre {
+  id        String   @id @default(uuid(7))
+  name      String   @unique  // e.g. "Action", "Drama", "Sci-Fi"
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+  mediaGenres MediaGenre[]
+
+  @@map("genre")
+}
+
+model StreamingPlatform {
+  id        String   @id @default(uuid(7))
+  name      String   @unique  // e.g. "Netflix", "Disney+", "Amazon Prime"
+  slug      String   @unique
+  logoUrl   String?
+  createdAt DateTime @default(now())
+
+  mediaLinks MediaStreamingLink[]
+
+  @@map("streaming_platform")
+}
+
+model Media {
+  id           String      @id @default(uuid(7))
+  title        String
+  slug         String      @unique
+  synopsis     String
+  type         MediaType
+  releaseYear  Int
+  director     String?
+  posterUrl    String?
+  backdropUrl  String?
+  trailerUrl   String?     // YouTube embed URL
+  streamingUrl String?     // direct streaming/YouTube link
+  pricingTier  PricingTier @default(FREE)
+  status       MediaStatus @default(DRAFT)
+  isFeatured   Boolean     @default(false)
+  isEditorPick Boolean     @default(false)
+
+  // Aggregated rating cache — updated via background job or trigger
+  avgRating    Float?
+  totalRatings Int         @default(0)
+  totalReviews Int         @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  genres          MediaGenre[]
+  cast            MediaCast[]
+  streamingLinks  MediaStreamingLink[]
+  reviews         Review[]
+  watchlistItems  WatchlistItem[]
+
+  @@index([status, pricingTier])
+  @@index([releaseYear])
+  @@index([avgRating])
+  @@map("media")
+}
+
+// Many-to-many: Media <-> Genre
+model MediaGenre {
+  mediaId String
+  genreId String
+
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  genre Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([mediaId, genreId])
+  @@map("media_genre")
+}
+
+// Many-to-many: Media <-> StreamingPlatform (with optional deep link)
+model MediaStreamingLink {
+  id         String  @id @default(cuid())
+  mediaId    String
+  platformId String
+  deepLink   String? // platform-specific URL
+
+  media    Media             @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  platform StreamingPlatform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, platformId])
+  @@map("media_streaming_link")
+}
+
+// =============================================================
+// ACTORS & CASTING (Many-to-Many)
+// =============================================================
+
+// 1. The Real-Life Actor (They only exist here once)
+model Actor {
+  id        String      @id @default(uuid(7))
+  name      String
+  photoUrl  String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  // This links the actor to all the movies they played in
+  roles     MediaCast[]
+
+  @@map("actor")
+}
+
+// 2. The Join Table (The Bridge connecting Media and Actor)
+model MediaCast {
+  id        String  @id @default(uuid(7))
+  mediaId   String
+  actorId   String
+  character String? // e.g., "Dom Cobb" or "Batman"
+  order     Int     @default(0) // Display order on the frontend
+
+  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  actor     Actor   @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  // Indexes make finding an actor's movies (or a movie's actors) blazing fast
+  @@index([mediaId])
+  @@index([actorId])
+  
+  // This prevents accidentally adding the exact same actor playing the exact same character in a movie twice
+  @@unique([mediaId, actorId, character]) 
+  
+  @@map("media_cast")
+}

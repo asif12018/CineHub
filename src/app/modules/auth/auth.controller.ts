@@ -1,0 +1,159 @@
+import { Request, Response } from "express";
+import { catchAsync } from "../../shared/catchAsync";
+import { AuthServices } from "./auth.service";
+import { sendResponse } from "../../shared/sendResponse";
+import status from "http-status";
+import { CookieUtils } from "../../utils/cookie";
+import { tokenUtils } from "../../utils/token";
+import AppError from "../../../errorHelpers/AppError";
+
+//register a user
+const registerUser = catchAsync(async (req: Request, res: Response) => {
+  let payload = req.body;
+  console.log("=== REGISTER DEBUG ===");
+  console.log("req.body:", req.body);
+  console.log("req.file:", req.file);
+  console.log("req.files:", req.files);
+  console.log("================");
+
+  if (req.body.data) {
+    payload = JSON.parse(req.body.data);
+  }
+
+  if (req.file) {
+    payload.image = req.file.path;
+  }
+
+  const result = await AuthServices.registerUser(payload);
+  //set access token in cookies
+  tokenUtils.setAccessTokenCookie(res, result.accessToken);
+  tokenUtils.setRefreshTokenCookie(res, result.refreshToken);
+  tokenUtils.setBetterAuthSessionCookie(res, result.token as string);
+
+  sendResponse(res, {
+    httpStatusCode: status.CREATED,
+    success: true,
+    message: "User registered successfully",
+    data: result,
+  });
+});
+
+//login a user
+const logInUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthServices.logInUser(req.body);
+
+  //set access token in cookies
+  tokenUtils.setAccessTokenCookie(res, result.accessToken);
+  tokenUtils.setRefreshTokenCookie(res, result.refreshToken);
+  tokenUtils.setBetterAuthSessionCookie(res, result.token as string);
+
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "User logged in successfully",
+    data: result,
+  });
+});
+
+//update a user
+
+const updateUser = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const payload = req.body;
+  const user = req.user;
+  const result = await AuthServices.updateUser(id as string, payload, user);
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "User updated successfully",
+    data: result,
+  });
+});
+
+//verify email with otp
+const verifyEmailOtp = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthServices.verifyEmailOtp(req.body);
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "Email verified successfully",
+    data: result,
+  });
+});
+
+//get user own profile
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+  const result = await AuthServices.getMe(user);
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "User profile fetched successfully",
+    data: result,
+  });
+});
+
+//refresh token
+
+const getNewRefreshToken = catchAsync(async (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+  const betterAuthSessionToken = req.cookies["better-auth.session_token"];
+
+  if (!refreshToken) {
+    throw new AppError(status.UNAUTHORIZED, "Refresh token not found");
+  }
+  const result = await AuthServices.getNewToken(
+    refreshToken,
+    betterAuthSessionToken,
+  );
+  const { accessToken, refreshToken: newRefreshToken, sessionToken } = result;
+  //set access token in cookies
+  tokenUtils.setAccessTokenCookie(res, accessToken);
+  tokenUtils.setRefreshTokenCookie(res, newRefreshToken);
+  tokenUtils.setBetterAuthSessionCookie(res, sessionToken as string);
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "New refresh token generated successfully",
+    data: result,
+  });
+});
+
+//forgot password
+
+const forgetPassword = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthServices.forgetPassword(req.body.email);
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "Forgot password email sent successfully",
+    data: result,
+  });
+});
+
+//reset password
+
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthServices.resetPassword(
+    req.body.email,
+    req.body.otp,
+    req.body.newPassword,
+  );
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "Password reset successfully",
+    data: result,
+  });
+});
+
+export const AuthController = {
+  registerUser,
+  logInUser,
+  verifyEmailOtp,
+  updateUser,
+  getMe,
+  getNewRefreshToken,
+  forgetPassword,
+  resetPassword,
+};
