@@ -5,6 +5,7 @@ import { GenreRoutes } from "../modules/genre/genre.routes";
 import { ActorRoutes } from "../modules/actor/actor.routes";
 import { MediaRoutes } from "../modules/media/media.routes";
 import { TagRoutes } from "../modules/tags/tags.routes";
+import { ReviewRoutes } from "../modules/reviews/reviews.routes";
 
 
 const router = Router();
@@ -24,6 +25,7 @@ router.use("/genre", GenreRoutes);
 router.use("/actor", ActorRoutes);
 router.use("/media", MediaRoutes);
 router.use("/tags", TagRoutes);
+router.use("/reviews", ReviewRoutes);
 
 
 
