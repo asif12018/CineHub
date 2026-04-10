@@ -176,7 +176,6 @@ const getMe = async(user:IRequestUser) =>{
       reviewLikes:true,
       comments:true,
       watchlist:true,
-      subscriptions:true,
       purchases:true,
       notifications:true
     }
@@ -310,6 +309,18 @@ const forgetPassword = async(email: string) =>{
 
   }
 
+  //logout
+
+  const logOutUser = async (sessionToken: string) => {
+  const result = await auth.api.signOut({
+    headers: new Headers({
+      Authorization: `Bearer ${sessionToken}`,
+    }),
+  });
+
+  return result;
+};
+
 export const AuthServices = {
   registerUser,
   logInUser,
@@ -318,5 +329,6 @@ export const AuthServices = {
   getMe,
   getNewToken,
   forgetPassword,
-  resetPassword
+  resetPassword,
+  logOutUser
 };

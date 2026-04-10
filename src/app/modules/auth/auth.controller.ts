@@ -150,6 +150,35 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+//logout user
+
+const logOutUser = catchAsync(async(req:Request, res:Response)=>{
+    const sessionToken = req.cookies["better-auth.session_token"];
+    const result = await AuthServices.logOutUser(sessionToken);
+    //clear all the cookies
+    CookieUtils.clearCookie(res, 'accessToken', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+    });
+    CookieUtils.clearCookie(res, 'refreshToken', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+    });
+    CookieUtils.clearCookie(res, 'better-auth.session_token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+    });
+    sendResponse(res,{
+        httpStatusCode:status.OK,
+        success: true,
+        message:"User logged out successfully",
+        data: result
+    })
+})
+
 export const AuthController = {
   registerUser,
   logInUser,
@@ -159,4 +188,5 @@ export const AuthController = {
   getNewRefreshToken,
   forgetPassword,
   resetPassword,
+  logOutUser
 };
