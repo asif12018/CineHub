@@ -1,0 +1,17 @@
+import { Router } from "express";
+import { catchAsync } from "../../shared/catchAsync";
+import { Role } from "../../../../generated/prisma";
+import { checkAuth } from "../../middlewares/checkAuth";
+import { WatchListController } from "./watchList.controller";
+
+
+
+const router = Router();
+
+
+router.post("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.USER), WatchListController.toggleWatchList);
+
+router.get("/", checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.USER), WatchListController.getUserWatchList);
+
+
+export const WatchListRoutes = router;

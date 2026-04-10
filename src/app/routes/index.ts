@@ -9,6 +9,7 @@ import { ReviewRoutes } from "../modules/reviews/reviews.routes";
 import { NotificationRoutes } from "../modules/notification/notification.routes";
 import { CommentRoutes } from "../modules/comment/comment.routes";
 import { ReviewLikeRoutes } from "../modules/reviewLike/reviewLike.routes";
+import { WatchListRoutes } from "../modules/watchList/watchList.routes";
 
 
 const router = Router();
@@ -32,6 +33,7 @@ router.use("/reviews", ReviewRoutes);
 router.use("/notification", NotificationRoutes);
 router.use("/comment", CommentRoutes);
 router.use("/like", ReviewLikeRoutes);
+router.use("/watchList", WatchListRoutes);
 
 
 
