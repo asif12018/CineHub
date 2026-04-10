@@ -112,8 +112,30 @@ const cancelSubscription = catchAsync(async (req: Request, res: Response) => {
 });
 
 
+const createCustomerPortal = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+        return res.status(status.UNAUTHORIZED).json({ message: "Not authenticated" });
+    }
+
+    const result = await PaymentService.createCustomerPortal(userId);
+
+    sendResponse(res, {
+        httpStatusCode: status.OK,
+        success: true,
+        message: "Customer portal session created successfully",
+        data: result
+    });
+});
+
+// Export it:
+
+
+
 export const PaymentController = {
     handleStripeWebhookEvent,
     createCheckout,
-    cancelSubscription
+    cancelSubscription,
+    createCustomerPortal
 };

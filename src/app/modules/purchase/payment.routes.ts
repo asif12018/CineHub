@@ -28,5 +28,13 @@ router.post(
     PaymentController.cancelSubscription
 );
 
+// Add this below your other routes (but make sure it uses express.json!)
+router.post(
+    "/customer-portal", 
+    express.json(), 
+    checkAuth(Role.USER), 
+    PaymentController.createCustomerPortal
+);
+
 
 export const PaymentRoutes = router;
