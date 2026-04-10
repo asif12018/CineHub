@@ -4,6 +4,7 @@ import { prisma } from "../../lib/prisma";
 import { ICreateReview, IUpdateReview } from "./reviews.interface";
 import { ReviewStatus } from "../../../../generated/prisma";
 import { updateMediaAggregateStats } from "../../helperFunciton/recalculateAvgReview";
+import { notifiedByAdmin } from "../../helperFunciton/notificationHelper";
 
 
 
@@ -229,6 +230,10 @@ const updateReviewStatus = async(payload:any, reviewId:string) =>{
     //recalculating avg review
 
     await updateMediaAggregateStats(result.mediaId);
+
+    //trigger notification
+
+    await notifiedByAdmin(result.userId, result.status as string)
 
     return result;
 }
