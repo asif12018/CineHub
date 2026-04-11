@@ -2,7 +2,7 @@
 import { NextFunction, Request, Response } from "express";
 import status from "http-status";
 import z from "zod";
-import { Prisma } from "../../../generated/prisma/client";
+import { Prisma } from "@prisma/client";
 
 // import { deleteUploadedFilesFromGlobalErrorHandler } from "../utils/deleteUploadedFilesFromGlobalErrorHandler";
 // import { envVars } from "../../config/env";

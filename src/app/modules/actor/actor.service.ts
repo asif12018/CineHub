@@ -1,4 +1,4 @@
-import { Actor ,Prisma} from "../../../../generated/prisma";
+import { Actor ,Prisma} from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 import { deleteFileFromCloudinary } from "../../utils/cloudinary.config";
 import { QueryBuilder } from "../../utils/QueryBuilder";

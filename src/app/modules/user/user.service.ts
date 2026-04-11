@@ -2,7 +2,7 @@ import { stat } from "node:fs";
 import AppError from "../../../errorHelpers/AppError";
 import { prisma } from "../../lib/prisma"
 import status from "http-status";
-import { Role } from "../../../../generated/prisma";
+import { Role } from "@prisma/client";
 
 
 

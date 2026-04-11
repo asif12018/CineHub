@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { catchAsync } from "../../shared/catchAsync";
-import { Role } from "../../../../generated/prisma";
+import { Role } from "@prisma/client";
 import { checkAuth } from "../../middlewares/checkAuth";
 import { WatchListController } from "./watchList.controller";
 

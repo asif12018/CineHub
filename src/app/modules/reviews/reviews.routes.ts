@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { checkAuth } from "../../middlewares/checkAuth";
-import { Role } from "../../../../generated/prisma";
+import { Role } from "@prisma/client";
 import { ReviewController } from "./reviews.controller";
 import { CreateReviewValidation, UpdateReviewValidation } from "./reviews.validation";
 import { validateRequest } from "../../middlewares/validateRequest";

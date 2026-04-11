@@ -3,7 +3,7 @@ import { multerUpload } from "../../utils/muler.config";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { ActorValidation } from "./actor.validation";
 import { checkAuth } from "../../middlewares/checkAuth";
-import { Role } from "../../../../generated/prisma";
+import { Role } from "@prisma/client";
 import { ActorController } from "./actor.controller";
 
 

@@ -1,4 +1,4 @@
-import { Genre, MediaCast, MediaStatus, MediaStreamingLink, MediaType, PricingTier, Purchase, Review, WatchlistItem } from "../../../../generated/prisma";
+import { Genre, MediaCast, MediaStatus, MediaStreamingLink, MediaType, PricingTier, Purchase, Review, WatchlistItem } from "@prisma/client";
 
 
 

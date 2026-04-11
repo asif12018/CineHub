@@ -14,3 +14,20 @@
   "include": ["src", "prisma.config.ts", "eslint.config.mjs", "src/app/routes"],
   "exclude": ["node_modules", "dist"]
 }
+
+
+// {
+//   "compilerOptions": {
+//     "module": "CommonJS",
+//     "moduleResolution": "node",
+//     "target": "es2022",
+//     "rootDir": "./",
+//     "outDir": "./dist",
+//     "strict": true,
+//     "esModuleInterop": true,
+//     "skipLibCheck": true,
+//     "forceConsistentCasingInFileNames": true
+//   },
+//   "include": ["src", "prisma.config.ts", "eslint.config.mjs", "src/app/routes"],
+//   "exclude": ["node_modules", "dist"]
+// }

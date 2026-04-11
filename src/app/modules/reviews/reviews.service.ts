@@ -2,7 +2,7 @@ import status from "http-status";
 import AppError from "../../../errorHelpers/AppError";
 import { prisma } from "../../lib/prisma";
 import { ICreateReview, IUpdateReview } from "./reviews.interface";
-import { ReviewStatus } from "../../../../generated/prisma";
+import { ReviewStatus } from "@prisma/client";
 import { updateMediaAggregateStats } from "../../helperFunciton/recalculateAvgReview";
 import { notifiedByAdmin } from "../../helperFunciton/notificationHelper";
 

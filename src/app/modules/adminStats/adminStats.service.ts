@@ -1,6 +1,6 @@
 import { prisma } from "../../lib/prisma";
 // Import your enums based on your actual schema
-import { ReviewStatus, MediaStatus, PaymentStatus } from "../../../../generated/prisma"; 
+import { ReviewStatus, MediaStatus, PaymentStatus } from "@prisma/client"; 
 
 const getDashboardAnalytics = async () => {
   // 1. 🟢 PUBLISHED CONTENT & USER ACTIVITY (Counts)

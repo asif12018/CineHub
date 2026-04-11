@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { CommentController } from "./comment.controller";
 import { checkAuth } from "../../middlewares/checkAuth";
-import { Role } from "../../../../generated/prisma";
+import { Role } from "@prisma/client";
 import { CommentValidation } from "./comment.validation";
 import { validateRequest } from "../../middlewares/validateRequest";
 

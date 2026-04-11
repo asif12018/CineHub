@@ -6,7 +6,7 @@ import {
   PaymentStatus,
   SubscriptionStatus,
   PurchaseType,
-} from "../../../../generated/prisma";
+} from "@prisma/client";
 
 // const handleStripeWebhookEvent = async (event: Stripe.Event) => {
 //   switch (event.type) {

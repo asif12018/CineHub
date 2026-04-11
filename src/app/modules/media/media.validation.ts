@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MediaStatus, MediaType, PricingTier } from "../../../../generated/prisma";
+import { MediaStatus, MediaType, PricingTier } from "@prisma/client";
 
 // =============================================================
 // MEDIA VALIDATION

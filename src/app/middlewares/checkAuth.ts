@@ -6,7 +6,7 @@ import { prisma } from "../lib/prisma";
 import { CookieUtils } from "../utils/cookie";
 import { jwtUtils } from "../utils/jwt";
 import AppError from "../../errorHelpers/AppError";
-import { Role } from "../../../generated/prisma";
+import { Role } from "@prisma/client";
 import config from "../config";
 
 export const checkAuth =

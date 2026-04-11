@@ -1,4 +1,4 @@
-import { ReviewStatus } from "../../../../generated/prisma";
+import { ReviewStatus } from "@prisma/client";
 
 
 

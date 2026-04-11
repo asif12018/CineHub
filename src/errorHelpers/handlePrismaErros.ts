@@ -1,6 +1,6 @@
 import status from "http-status"
 
-import { Prisma } from "../../generated/prisma"
+import { Prisma } from "@prisma/client"
 import { TErrorResponse, TErrorSource } from "../interface/error.interface"
 
 

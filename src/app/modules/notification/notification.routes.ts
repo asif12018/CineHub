@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { NotificationController } from "./notification.controller";
 import { checkAuth } from "../../middlewares/checkAuth";
-import { Role } from "../../../../generated/prisma";
+import { Role } from "@prisma/client";
 
 
 

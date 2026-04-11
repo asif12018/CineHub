@@ -4,7 +4,7 @@ import AppError from "../../../errorHelpers/AppError"; // Adjust path to your er
 import { ICreateMedia, IUpdateMedia } from "./media.interface"; // Adjust path to your interfaces
 import { deleteFileFromCloudinary } from "../../utils/cloudinary.config";
 import { QueryBuilder } from "../../utils/QueryBuilder";
-import { Media, Prisma } from "../../../../generated/prisma";
+import { Media, Prisma } from "@prisma/client";
 
 import { mediaFilterableFields, mediaIncludeConfig, mediaSearchableFields } from "./media.constant";
 import { IQueryParams } from "../../../interface/query.interface";
