@@ -25,7 +25,7 @@
 import { NextFunction, Request, Response } from "express";
 import z from "zod";
 
-export const validateRequest = (ZodSchema: z.AnyZodObject) => {
+export const validateRequest = (ZodSchema: z.ZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // 1. Default to an empty object if req.body is undefined

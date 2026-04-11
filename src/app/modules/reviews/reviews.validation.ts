@@ -11,7 +11,7 @@ export const CreateReviewValidation = z.object({
 })
 
 
-export const UpdateReviewValidation = CreateReviewValidation.optional();
+export const UpdateReviewValidation = CreateReviewValidation.partial();
 
 
 

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc && node scripts/fix-imports.js",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write .",
@@ -26,7 +26,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "-": "^0.0.1",
     "@opentelemetry/api": "^1.9.1",
     "@prisma/adapter-pg": "^7.6.0",
     "@prisma/client": "^7.6.0",

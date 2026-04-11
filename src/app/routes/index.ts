@@ -11,6 +11,7 @@ import { CommentRoutes } from "../modules/comment/comment.routes";
 import { ReviewLikeRoutes } from "../modules/reviewLike/reviewLike.routes";
 import { WatchListRoutes } from "../modules/watchList/watchList.routes";
 import { PaymentRoutes } from "../modules/purchase/payment.routes";
+import { AdminRoutes } from "../modules/adminStats/adminStats.routes";
 
 
 const router = Router();
@@ -35,7 +36,7 @@ router.use("/notification", NotificationRoutes);
 router.use("/comment", CommentRoutes);
 router.use("/like", ReviewLikeRoutes);
 router.use("/watchList", WatchListRoutes);
-
+router.use("/admin", AdminRoutes);
 
 
 
