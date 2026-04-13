@@ -61,6 +61,9 @@ import { PaymentRoutes } from "./app/modules/purchase/payment.routes";
 
 const app: Application = express();
 
+import dns from 'node:dns';
+dns.setDefaultResultOrder('ipv4first');
+
 // 1. GLOBALS (Must be at the very top)
 app.use(cors({
     origin: [config.BETTER_AUTH_URL, config.FRONTEND_URL] as string[],
