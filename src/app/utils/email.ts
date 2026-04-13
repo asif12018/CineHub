@@ -13,6 +13,9 @@ const transporter = nodemailer.createTransport({
         pass: config.EMAIL_SENDER_SMTP_PASS
     },
     port: Number(config.EMAIL_SENDER_SMTP_PORT),
+    tls: {
+    rejectUnauthorized: false
+  }
 });
 
 //email interface
