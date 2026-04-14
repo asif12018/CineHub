@@ -7,10 +7,9 @@
   "author": "",
   "main": "dist/server.js",
   "scripts": {
-    "start": "node ./dist/server.js",
+    "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && tsc && node scripts/fix-imports.js",
-    "build:tsup": "tsup",
+     "build": "prisma generate && tsup src/server.ts --format cjs --outDir dist --external pg-native",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write .",
