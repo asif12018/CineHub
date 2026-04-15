@@ -23,6 +23,7 @@ router.post("/refresh-token", AuthController.getNewRefreshToken);
 router.post("/forget-password", AuthController.forgetPassword);
 router.post("/reset-password", AuthController.resetPassword);
 router.post("/logout", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), AuthController.logOutUser);
+router.post("/resend-otp", AuthController.resendOTP);
 
 
 export const AuthRoutes = router;

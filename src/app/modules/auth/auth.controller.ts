@@ -181,6 +181,30 @@ const logOutUser = catchAsync(async(req:Request, res:Response)=>{
     })
 })
 
+//resend email
+
+const resendOTP = catchAsync(async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return sendResponse(res, {
+      httpStatusCode: status.BAD_REQUEST,
+      success: false,
+      message: "Email is required",
+      data: null,
+    });
+  }
+
+  await AuthServices.resendOTP(email);
+
+  sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "A new OTP has been sent to your email",
+    data: null,
+  });
+});
+
 export const AuthController = {
   registerUser,
   logInUser,
@@ -190,5 +214,6 @@ export const AuthController = {
   getNewRefreshToken,
   forgetPassword,
   resetPassword,
-  logOutUser
+  logOutUser,
+  resendOTP
 };
