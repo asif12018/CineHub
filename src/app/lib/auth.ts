@@ -8,6 +8,7 @@ import config from "../config";
 
 export const auth = betterAuth({
   baseURL: config.BETTER_AUTH_URL,
+  basePath: "/api/v1/auth",
   secret: config.BETTER_AUTH_SECRET,
   database: prismaAdapter(prisma, {
     provider: "postgresql", // or "mysql", "postgresql", ...etc
@@ -108,7 +109,7 @@ export const auth = betterAuth({
               },
             });
           }
-        }else if(type ="forget-password"){
+        }else if(type ==="forget-password"){
                const user = await prisma.user.findFirst({
                 where:{
                   email
