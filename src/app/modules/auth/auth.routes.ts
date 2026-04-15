@@ -13,8 +13,8 @@ import { AuthValidation } from "./auth.validations";
 
 const router = Router();
 
-router.post("/register", multerUpload.single('image'), AuthController.registerUser);
-// router.post("/register", AuthController.registerUser);
+// router.post("/register", multerUpload.single('image'), AuthController.registerUser);
+router.post("/register", AuthController.registerUser);
 router.post("/login", AuthController.logInUser);
 router.post("/verify-email-otp", AuthController.verifyEmailOtp);
 router.patch("/update-user/:id", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), multerUpload.single('image'),AuthController.updateUser);
