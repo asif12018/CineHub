@@ -205,6 +205,29 @@ const resendOTP = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+//reset password otp
+
+const resendOTPForgetPassword  = catchAsync(async(req:Request, res:Response)=>{
+  const {email} = req.body;
+  if(!email){
+    return sendResponse(res, {
+      httpStatusCode: status.BAD_REQUEST,
+      success: false,
+      message: "Email is required",
+      data:null
+    })
+  }
+
+  await AuthServices.resendOTPForgetPassword(email);
+   sendResponse(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "A new OTP has been sent to your email",
+    data: null,
+  });
+})
+
 //get user info for verification
 
 const getMeAuth = catchAsync(async (req: Request, res: Response) => {
@@ -237,4 +260,5 @@ export const AuthController = {
   logOutUser,
   resendOTP,
   getMeAuth,
+  resendOTPForgetPassword 
 };

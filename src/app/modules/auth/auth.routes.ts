@@ -24,6 +24,7 @@ router.post("/forget-password", AuthController.forgetPassword);
 router.post("/reset-password", AuthController.resetPassword);
 router.post("/logout", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), AuthController.logOutUser);
 router.post("/resend-otp", AuthController.resendOTP);
+router.post("/otp-forget-password", AuthController.resendOTPForgetPassword)
 router.get("/authUser", checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.USER), AuthController.getMeAuth);
 
 

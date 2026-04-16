@@ -366,6 +366,29 @@ const resendOTP = async (email: string) => {
   }
 };
 
+
+//forget password otp
+
+const resendOTPForgetPassword = async (email: string) => {
+  try {
+    // Calling Better-Auth's internal API directly from the server
+    await auth.api.sendVerificationOTP({
+      headers: new Headers(), // Global Headers object is available in Node 22
+      body: {
+        email,
+        type: "forget-password",
+      },
+    });
+
+    return null; // The auth config handles the actual email sending
+  } catch (error) {
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      "Failed to generate new OTP",
+    );
+  }
+};
+
 //logout
 
 const logOutUser = async (sessionToken: string) => {
@@ -410,4 +433,5 @@ export const AuthServices = {
   logOutUser,
   resendOTP,
   getMeAuth,
+  resendOTPForgetPassword
 };
