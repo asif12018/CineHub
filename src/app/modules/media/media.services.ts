@@ -175,13 +175,43 @@ const updateMedia = async (id: string, payload: IUpdateMedia) => {
 // =============================================================
 // 3. GET ALL MEDIA
 // =============================================================
+// const getAllMedia = async (query: IQueryParams) => {
+//     const queryBuilder = new QueryBuilder<Media, Prisma.MediaWhereInput, Prisma.MediaInclude>(
+//         prisma.media,
+//         query,
+//         {
+//             searchableFields: mediaSearchableFields,
+//             filterableFields: mediaFilterableFields, // Make sure this contains 'genres.genre.name'
+//         }
+//     );
+
+//     const queryInstance = queryBuilder
+//         .search()
+//         .filter()
+//         .include({
+//             cast: { include: { actor: true } },
+//             genres: { include: { genre: true } },
+//             reviews: {include: {likes: true}}
+//         })
+//         .dynamicInclude(mediaIncludeConfig)
+//         .paginate()
+//         .sort()
+//         .fields();
+
+//     // 🔴 ADD THESE TWO LINES HERE:
+//     console.log("1. WHAT EXPRESS SEES (req.query):", query);
+//     console.log("2. WHAT PRISMA SEES (where clause):", JSON.stringify(queryInstance.getQuery().where, null, 2));
+
+//     return await queryInstance.execute();
+// };
+
 const getAllMedia = async (query: IQueryParams) => {
     const queryBuilder = new QueryBuilder<Media, Prisma.MediaWhereInput, Prisma.MediaInclude>(
         prisma.media,
         query,
         {
             searchableFields: mediaSearchableFields,
-            filterableFields: mediaFilterableFields, // Make sure this contains 'genres.genre.name'
+            filterableFields: mediaFilterableFields, 
         }
     );
 
@@ -191,16 +221,26 @@ const getAllMedia = async (query: IQueryParams) => {
         .include({
             cast: { include: { actor: true } },
             genres: { include: { genre: true } },
-            reviews: {include: {likes: true}}
+            reviews: { include: { likes: true } } // Includes the reviews and their likes
         })
         .dynamicInclude(mediaIncludeConfig)
         .paginate()
-        .sort()
+        .sort() 
         .fields();
 
-    // 🔴 ADD THESE TWO LINES HERE:
-    console.log("1. WHAT EXPRESS SEES (req.query):", query);
-    console.log("2. WHAT PRISMA SEES (where clause):", JSON.stringify(queryInstance.getQuery().where, null, 2));
+    const prismaQuery = queryInstance.getQuery();
+    
+    // 🔴 OVERRIDE FOR "MOST LIKED" AND "MOST REVIEWED" 🔴
+    if (query.sortBy === 'likes') {
+        // Sort by the total number of reviews that exist
+        // Note: Prisma currently struggles to sort by deeply nested _counts (e.g., counting the likes inside the reviews inside the media). 
+        // The most reliable way to sort movies relationally in Prisma without raw SQL is to sort by total reviews:
+        prismaQuery.orderBy = {
+            reviews: {
+                _count: query.sortOrder || 'desc'
+            }
+        };
+    }
 
     return await queryInstance.execute();
 };
