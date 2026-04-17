@@ -75,6 +75,10 @@ app.use(cookieParser()); // Required for Better-Auth
 // 2. AUTHENTICATION
 app.use("/api/auth", toNodeHandler(auth));
 
+app.use('/api/v1/payment/stripe/webhook', 
+  express.raw({ type: 'application/json' })
+);
+
 // 3. THE STRIPE WEBHOOK (Must be before express.json!)
 app.use('/api/v1/payment', PaymentRoutes);
 

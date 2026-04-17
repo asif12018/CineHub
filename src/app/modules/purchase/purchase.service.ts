@@ -47,7 +47,7 @@ import status from "http-status";
 //             },
 //           });
 //           console.log(`✅ Movie ${purchase.type} payment processed for ID: ${dbId}`);
-          
+
 //         } else if (transactionType === "SUBSCRIPTION") {
 //           await prisma.subscription.update({
 //             where: { id: dbId },
@@ -89,7 +89,7 @@ import status from "http-status";
 //     // 🚨 THIS IS THE CASE THAT FIXES YOUR 'FALSE' DATABASE ISSUE!
 //     // case "customer.subscription.updated": {
 //     //   const subscription = event.data.object as Stripe.Subscription;
-      
+
 //     //   await prisma.subscription.updateMany({
 //     //     where: { providerSubId: subscription.id },
 //     //     data: {
@@ -101,7 +101,7 @@ import status from "http-status";
 //     // }
 //     case "customer.subscription.updated": {
 //       const subscription = event.data.object as Stripe.Subscription;
-      
+
 //       const result = await prisma.subscription.updateMany({
 //         where: { providerSubId: subscription.id },
 //         data: {
@@ -112,7 +112,7 @@ import status from "http-status";
 //       // 🔍 NEW DEBUGGING LOGS:
 //       console.log(`ℹ️ Stripe sent Cancel Status: ${subscription.cancel_at_period_end}`);
 //       console.log(`🔍 Database rows updated: ${result.count}`);
-      
+
 //       if (result.count === 0) {
 //           console.log(`⚠️ URGENT WARNING: We received the webhook, but could not find a row in the database with providerSubId: ${subscription.id}`);
 //       }
@@ -143,7 +143,7 @@ import status from "http-status";
 //     }
 
 //     default:
-//       // You can comment this log out if you don't want to see the 
+//       // You can comment this log out if you don't want to see the
 //       // safe 'unhandled' messages in your terminal!
 //       console.log(`ℹ️ Unhandled event type: ${event.type}`);
 //   }
@@ -169,7 +169,7 @@ import status from "http-status";
 //       data: { userId, mediaId, type: PurchaseType.RENTAL, amount: 3.0 },
 //     });
 //     dbRecordId = purchase.id;
-    
+
 //   } else if (type === "SUBSCRIPTION") {
 //     price = 1500; // $15.00/month
 //     name = "Premium Monthly Subscription";
@@ -221,7 +221,9 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
 
       if (session.payment_status === "paid") {
         if (transactionType === "PURCHASE") {
-          const purchase = await prisma.purchase.findUnique({ where: { id: dbId } });
+          const purchase = await prisma.purchase.findUnique({
+            where: { id: dbId },
+          });
           if (!purchase) return { message: "Purchase not found" };
 
           let accessTimeStartedAt = null;
@@ -274,7 +276,10 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
       const subscription = event.data.object as Stripe.Subscription;
       await prisma.subscription.updateMany({
         where: { providerSubId: subscription.id },
-        data: { status: SubscriptionStatus.CANCELLED, cancelAtPeriodEnd: false },
+        data: {
+          status: SubscriptionStatus.CANCELLED,
+          cancelAtPeriodEnd: false,
+        },
       });
       break;
     }
@@ -294,12 +299,14 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
           data: {
             status: SubscriptionStatus.ACTIVE,
             currentPeriodStart: periodStart, // 🟢 Now this will be Today
-            currentPeriodEnd: periodEnd,     // 🟢 Now this will be 1 month from Today
+            currentPeriodEnd: periodEnd, // 🟢 Now this will be 1 month from Today
             cancelAtPeriodEnd: false,
           },
         });
 
-        console.log(`✅ Subscription ${stripeSubId} updated with correct dates.`);
+        console.log(
+          `✅ Subscription ${stripeSubId} updated with correct dates.`,
+        );
       }
       break;
     }
@@ -311,9 +318,9 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
 };
 
 const createCheckoutSession = async (
-  userId: string, 
-  mediaId: string, 
-  type: "RENTAL" | "SUBSCRIPTION" | "ONE_TIME_BUY"
+  userId: string,
+  mediaId: string,
+  type: "RENTAL" | "SUBSCRIPTION" | "ONE_TIME_BUY",
 ) => {
   let unitAmount = 0;
   let name = "";
@@ -322,27 +329,30 @@ const createCheckoutSession = async (
 
   // 🟢 DYNAMIC PRICE FETCHING
   if (type === "RENTAL" || type === "ONE_TIME_BUY") {
-    const movie = await prisma.media.findUniqueOrThrow({ where: { id: mediaId } });
-    
-    // logic: If movie has 'rentalPrice' and 'buyPrice' columns, use them. 
-    // Otherwise, use a default field like 'price'.
-    // @ts-ignore (Adjust field names based on your actual Media model)
-    const rawPrice = type === "RENTAL" ? (movie.rentalPrice || 3) : (movie.buyPrice || 15);
-    
+    const movie = await prisma.media.findUniqueOrThrow({
+      where: { id: mediaId },
+    });
+
+    // Use rentPrice for rental, buyPrice for one-time buy; fall back to defaults if null.
+    // if not work the change it
+    // type === "RENTAL" ? movie.rentalPrice || 3 : movie.buyPrice || 15;
+    const rawPrice =
+      type === "RENTAL" ? (movie.rentPrice?.toNumber() ?? 3) : (movie.buyPrice?.toNumber() ?? 15);
+
     unitAmount = Math.round(rawPrice * 100); // Stripe needs cents
     name = `${type === "RENTAL" ? "Rent" : "Buy"}: ${movie.title}`;
     mode = "payment";
 
     const purchase = await prisma.purchase.create({
-      data: { 
-        userId, 
-        mediaId, 
-        type: type === "RENTAL" ? PurchaseType.RENTAL : PurchaseType.ONE_TIME_BUY, 
-        amount: rawPrice 
+      data: {
+        userId,
+        mediaId,
+        type:
+          type === "RENTAL" ? PurchaseType.RENTAL : PurchaseType.ONE_TIME_BUY,
+        amount: rawPrice,
       },
     });
     dbRecordId = purchase.id;
-
   } else if (type === "SUBSCRIPTION") {
     unitAmount = 7500; // $75.00 fixed
     name = "Premium Monthly Subscription";
@@ -351,7 +361,11 @@ const createCheckoutSession = async (
     const sub = await prisma.subscription.upsert({
       where: { userId },
       update: { status: SubscriptionStatus.PENDING },
-      create: { userId, currentPeriodStart: new Date(), currentPeriodEnd: new Date() },
+      create: {
+        userId,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(),
+      },
     });
     dbRecordId = sub.id;
   }
@@ -359,15 +373,17 @@ const createCheckoutSession = async (
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: mode,
-    line_items: [{
-      price_data: {
-        currency: "usd",
-        product_data: { name },
-        ...(mode === "subscription" && { recurring: { interval: "month" } }),
-        unit_amount: unitAmount,
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: { name },
+          ...(mode === "subscription" && { recurring: { interval: "month" } }),
+          unit_amount: unitAmount,
+        },
+        quantity: 1,
       },
-      quantity: 1,
-    }],
+    ],
     metadata: {
       transactionType: type === "SUBSCRIPTION" ? "SUBSCRIPTION" : "PURCHASE",
       dbId: dbRecordId,
@@ -387,14 +403,16 @@ const cancelSubscription = async (userId: string) => {
     throw new Error("No subscription found for this user.");
   }
 
-  if (subscription.status !== SubscriptionStatus.ACTIVE || !subscription.providerSubId) {
+  if (
+    subscription.status !== SubscriptionStatus.ACTIVE ||
+    !subscription.providerSubId
+  ) {
     throw new Error("Subscription is not active or cannot be canceled.");
   }
 
-  await stripe.subscriptions.update(
-    subscription.providerSubId,
-    { cancel_at_period_end: true },
-  );
+  await stripe.subscriptions.update(subscription.providerSubId, {
+    cancel_at_period_end: true,
+  });
 
   const updatedDbSub = await prisma.subscription.update({
     where: { id: subscription.id },
@@ -407,17 +425,17 @@ const cancelSubscription = async (userId: string) => {
 };
 
 const createCustomerPortal = async (userId: string) => {
-  const subscription = await prisma.subscription.findUnique({ 
-    where: { userId } 
+  const subscription = await prisma.subscription.findUnique({
+    where: { userId },
   });
-  
+
   if (!subscription || !subscription.stripeCustomerId) {
     throw new Error("No active Stripe customer found for this user.");
   }
 
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: subscription.stripeCustomerId,
-    return_url: `${config.FRONTEND_URL}/settings`, 
+    return_url: `${config.FRONTEND_URL}/settings`,
   });
 
   return { portalUrl: portalSession.url };
@@ -436,23 +454,30 @@ const getPurchaseInfo = async (userId: string, mediaId: string) => {
   });
 
   if (!purchase) {
-    throw new AppError(status.NOT_FOUND, "No valid completed purchase found for this media.");
+    throw new AppError(
+      status.NOT_FOUND,
+      "No valid completed purchase found for this media.",
+    );
   }
 
   // If the purchase is a rental, we must check the expiration date
   if (purchase.type === PurchaseType.RENTAL) {
     const now = new Date();
-    
+
     // If access hasn't been started/set, or if the current date is past the expiration date
-    if (!purchase.accessExpiresAt || purchase.accessExpiresAt < now) {
-      throw new AppError(status.FORBIDDEN, "Your rental period for this media has expired.");
+    if (
+      !purchase.accessExpiresAt || purchase.accessExpiresAt < now
+    ) {
+      throw new AppError(
+        status.FORBIDDEN,
+        "Your rental period for this media has expired.",
+      );
     }
   }
 
   // If it's a ONE_TIME_BUY, or a valid RENTAL, they have access
   return true; // Or return the 'purchase' object if you need its data later
 };
-
 
 const getSubscriptionInfo = async (userId: string) => {
   // Since userId is @unique in the Subscription model, use findUnique for better performance
@@ -470,13 +495,19 @@ const getSubscriptionInfo = async (userId: string) => {
 
   // Check if the subscription status is ACTIVE
   if (subscription.status !== SubscriptionStatus.ACTIVE) {
-    throw new AppError(status.FORBIDDEN, `Subscription is not active. Current status: ${subscription.status}`);
+    throw new AppError(
+      status.FORBIDDEN,
+      `Subscription is not active. Current status: ${subscription.status}`,
+    );
   }
 
-  // Ensure the user's billing period hasn't ended. 
+  // Ensure the user's billing period hasn't ended.
   // This honors the `cancelAtPeriodEnd` logic: if they canceled but the period end is in the future, they still get access.
   if (subscription.currentPeriodEnd < now) {
-    throw new AppError(status.FORBIDDEN, "Subscription access period has expired.");
+    throw new AppError(
+      status.FORBIDDEN,
+      "Subscription access period has expired.",
+    );
   }
 
   return true; // Or return the 'subscription' object
@@ -488,5 +519,5 @@ export const PaymentService = {
   cancelSubscription,
   createCustomerPortal,
   getSubscriptionInfo,
-  getPurchaseInfo
+  getPurchaseInfo,
 };
