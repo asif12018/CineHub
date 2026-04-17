@@ -39,8 +39,8 @@ const getUserWatchList = catchAsync(async(req:Request, res:Response)=>{
 
 const isMovieOnTheWatchList = catchAsync(async(req:Request, res:Response)=>{
     const user = req.user;
-    const movieId = req.body.movieId;
-    const result = await WatchListService.isMovieOnTheWatchList(movieId, user.userId);
+    const movieId = req.params.id;
+    const result = await WatchListService.isMovieOnTheWatchList(movieId as string, user.userId);
 
     sendResponse(res,{
         httpStatusCode: status.OK,
