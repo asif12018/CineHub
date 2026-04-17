@@ -317,6 +317,85 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
   return { message: "Success" };
 };
 
+// const createCheckoutSession = async (
+//   userId: string,
+//   mediaId: string,
+//   type: "RENTAL" | "SUBSCRIPTION" | "ONE_TIME_BUY",
+// ) => {
+//   let unitAmount = 0;
+//   let name = "";
+//   let mode: "payment" | "subscription" = "payment";
+//   let dbRecordId = "";
+
+//   // 🟢 DYNAMIC PRICE FETCHING
+//   if (type === "RENTAL" || type === "ONE_TIME_BUY") {
+//     const movie = await prisma.media.findUniqueOrThrow({
+//       where: { id: mediaId },
+//     });
+
+//     // Use rentPrice for rental, buyPrice for one-time buy; fall back to defaults if null.
+//     // if not work the change it
+//     // type === "RENTAL" ? movie.rentalPrice || 3 : movie.buyPrice || 15;
+//     const rawPrice =
+//       type === "RENTAL" ? (movie.rentPrice?.toNumber() ?? 3) : (movie.buyPrice?.toNumber() ?? 15);
+
+//     unitAmount = Math.round(rawPrice * 100); // Stripe needs cents
+//     name = `${type === "RENTAL" ? "Rent" : "Buy"}: ${movie.title}`;
+//     mode = "payment";
+
+//     const purchase = await prisma.purchase.create({
+//       data: {
+//         userId,
+//         mediaId,
+//         type:
+//           type === "RENTAL" ? PurchaseType.RENTAL : PurchaseType.ONE_TIME_BUY,
+//         amount: rawPrice,
+//       },
+//     });
+//     dbRecordId = purchase.id;
+//   } else if (type === "SUBSCRIPTION") {
+//     unitAmount = 7500; // $75.00 fixed
+//     name = "Premium Monthly Subscription";
+//     mode = "subscription";
+
+//     const sub = await prisma.subscription.upsert({
+//       where: { userId },
+//       update: { status: SubscriptionStatus.PENDING },
+//       create: {
+//         userId,
+//         currentPeriodStart: new Date(),
+//         currentPeriodEnd: new Date(),
+//       },
+//     });
+//     dbRecordId = sub.id;
+//   }
+
+//   const session = await stripe.checkout.sessions.create({
+//     payment_method_types: ["card"],
+//     mode: mode,
+//     line_items: [
+//       {
+//         price_data: {
+//           currency: "usd",
+//           product_data: { name },
+//           ...(mode === "subscription" && { recurring: { interval: "month" } }),
+//           unit_amount: unitAmount,
+//         },
+//         quantity: 1,
+//       },
+//     ],
+//     metadata: {
+//       transactionType: type === "SUBSCRIPTION" ? "SUBSCRIPTION" : "PURCHASE",
+//       dbId: dbRecordId,
+//     },
+//     success_url: `${config.FRONTEND_URL}/payment-success`,
+//     cancel_url: `${config.FRONTEND_URL}/payment-cancelled`,
+//   });
+
+//   return { checkoutUrl: session.url };
+// };
+
+
 const createCheckoutSession = async (
   userId: string,
   mediaId: string,
@@ -327,15 +406,40 @@ const createCheckoutSession = async (
   let mode: "payment" | "subscription" = "payment";
   let dbRecordId = "";
 
-  // 🟢 DYNAMIC PRICE FETCHING
+  // 🟢 DYNAMIC PRICE FETCHING & VALIDATION
   if (type === "RENTAL" || type === "ONE_TIME_BUY") {
+    
+    // 1. Fetch existing COMPLETED transactions for this user and media
+    const existingPurchases = await prisma.purchase.findMany({
+      where: {
+        userId,
+        mediaId,
+        paymentStatus: PaymentStatus.COMPLETED,
+      },
+    });
+
+    // 2. If they already permanently own it, block them from buying OR renting it again
+    const ownsMovie = existingPurchases.some(p => p.type === PurchaseType.ONE_TIME_BUY);
+    if (ownsMovie) {
+      throw new AppError(status.CONFLICT, "You already own this title permanently.");
+    }
+
+    // 3. If they are trying to rent it, check if they already have an ACTIVE rental
+    if (type === "RENTAL") {
+      const now = new Date();
+      const hasActiveRental = existingPurchases.some(
+        p => p.type === PurchaseType.RENTAL && p.accessExpiresAt && p.accessExpiresAt > now
+      );
+      if (hasActiveRental) {
+        throw new AppError(status.CONFLICT, "You already have an active rental for this title.");
+      }
+    }
+
+    // 4. Fetch the movie details
     const movie = await prisma.media.findUniqueOrThrow({
       where: { id: mediaId },
     });
 
-    // Use rentPrice for rental, buyPrice for one-time buy; fall back to defaults if null.
-    // if not work the change it
-    // type === "RENTAL" ? movie.rentalPrice || 3 : movie.buyPrice || 15;
     const rawPrice =
       type === "RENTAL" ? (movie.rentPrice?.toNumber() ?? 3) : (movie.buyPrice?.toNumber() ?? 15);
 
@@ -347,12 +451,12 @@ const createCheckoutSession = async (
       data: {
         userId,
         mediaId,
-        type:
-          type === "RENTAL" ? PurchaseType.RENTAL : PurchaseType.ONE_TIME_BUY,
+        type: type === "RENTAL" ? PurchaseType.RENTAL : PurchaseType.ONE_TIME_BUY,
         amount: rawPrice,
       },
     });
     dbRecordId = purchase.id;
+
   } else if (type === "SUBSCRIPTION") {
     unitAmount = 7500; // $75.00 fixed
     name = "Premium Monthly Subscription";
