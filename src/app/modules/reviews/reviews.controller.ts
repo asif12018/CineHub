@@ -63,12 +63,15 @@ const updateReview = catchAsync(async(req:Request, res:Response)=>{
 const getReviewByMedia = catchAsync(async(req: Request, res: Response) => {
     const mediaId = req.params.id;
     
-    // 🟢 1. Extract the user ID. 
-    // (Assuming your auth middleware attaches the user to the request object)
-    // If they aren't logged in, this safely becomes undefined.
-    const userId = (req as any).user?.id || req.user?.id; 
+    // 🟢 1. Grab the user object from the checkAuth middleware
+    const user = (req as any).user;
+    console.log("MIDDLEWARE USER OBJECT:", user); // 👈 THIS LOG IS CRITICAL
 
-    // 🟢 2. Pass the userId as the second argument!
+    // 🟢 2. Extract the ID safely
+    const userId = user?.id || user?.userId || null; 
+    console.log("EXTRACTED USER ID:", userId); // 👈 THIS LOG IS CRITICAL
+
+    // 🟢 3. Pass it to the service
     const result = await ReviewService.getReviewsByMediaId(mediaId as string, userId);
     
     sendResponse(res, {

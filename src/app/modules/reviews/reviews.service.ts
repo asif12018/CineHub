@@ -264,16 +264,15 @@ const getReviewsByMediaId = async (mediaId: string, userId?: string | null) => {
   });
 
   // 🟢 3. MAP THE RESULTS: Transform the database array into a clean boolean
-  const formattedReviews = reviews.map((review) => {
-    // Check if the likes array exists and has at least one item
-    const isLiked = review.likes && review.likes.length > 0;
+const formattedReviews = reviews.map((review) => {
+    // STRICT CHECK: If likes array exists and has items, true. Else, false.
+    const isLiked = review.likes && review.likes.length > 0 ? true : false;
     
-    // Separate the 'likes' array out so we don't send it to the frontend
     const { likes, ...reviewData } = review as any; 
 
     return {
       ...reviewData,
-      isLikedByCurrentUser: isLiked // Attach our clean boolean!
+      isLikedByCurrentUser: isLiked 
     };
   });
 
