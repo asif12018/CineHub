@@ -639,6 +639,31 @@ const getSubscriptionInfo = async (userId: string) => {
   return subscription; 
 };
 
+const getUserPurchaseHistory = async(userId: string) => {
+  // 1. Fetch all movie/series purchases
+  // 🟢 FIXED: Changed findFirst to findMany to get the FULL history
+  const purchaseHistory = await prisma.purchase.findMany({
+    where: { userId: userId },
+    include: {
+      media: true, // This gives you the title, poster, and streamingUrl
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  // 2. Fetch the latest subscription
+  const subscribeHistory = await prisma.subscription.findFirst({
+    where: { userId: userId },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  // 3. THE RETURN LOGIC
+  // We return an object. If they have nothing, 'purchases' will just be []
+  return {
+    purchases: purchaseHistory || [],
+    subscription: subscribeHistory || null,
+  };
+}
+
 export const PaymentService = {
   handleStripeWebhookEvent,
   createCheckoutSession,
@@ -646,4 +671,5 @@ export const PaymentService = {
   createCustomerPortal,
   getSubscriptionInfo,
   getPurchaseInfo,
+  getUserPurchaseHistory
 };

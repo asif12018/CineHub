@@ -127,6 +127,17 @@ const getSubscriptionInfo = catchAsync(async(req:Request, res:Response)=>{
 })
 
 
+const getUserPurchaseHistory = catchAsync(async(req:Request, res:Response)=>{
+    const user = req.user;
+    const result = await PaymentService.getUserPurchaseHistory(user.userId as string);
+    sendResponse(res, {
+        httpStatusCode: status.OK,
+        message:"Purchase history retrieved",
+        success: true,
+        data: result
+    })
+})
+
 
 export const PaymentController = {
     handleStripeWebhookEvent,
@@ -134,5 +145,6 @@ export const PaymentController = {
     cancelSubscription,
     createCustomerPortal,
     getPurchaseInfo,
-    getSubscriptionInfo
+    getSubscriptionInfo,
+    getUserPurchaseHistory
 };

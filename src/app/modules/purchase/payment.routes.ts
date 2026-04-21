@@ -39,6 +39,7 @@ router.post(
 
 router.get("/getPurchase/:id", checkAuth(Role.ADMIN,Role.SUPER_ADMIN, Role.USER), PaymentController.getPurchaseInfo);
 router.get("/getSubscription", checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.USER), PaymentController.getSubscriptionInfo);
+router.get("/payment-history", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), PaymentController.getUserPurchaseHistory);
 
 
 export const PaymentRoutes = router;
