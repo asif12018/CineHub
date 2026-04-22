@@ -40,7 +40,7 @@ const readNotification = async(userId: string) =>{
 }
 
 
-const likeNotification = async(userId: string, personId: string) =>{
+const likeNotification = async(userId: string, personId: string, mediaId:string) =>{
    const userData = await prisma.user.findFirstOrThrow({
     where:{
         id: userId
@@ -59,14 +59,14 @@ const likeNotification = async(userId: string, personId: string) =>{
         personId: userData.id,
         title: "Like",
         body: `${userData.name} liked your review`,
-        link: `/profile/${personData.id}`,
+        link: `/movie/${mediaId}`,
         isRead: false
     }
    })
 }
 
 
-const commentNotification = async(userId: string, personId: string) =>{
+const commentNotification = async(userId: string, personId: string, mediaId:string) =>{
     const userData = await prisma.user.findFirstOrThrow({
         where:{
             id: userId
@@ -85,7 +85,7 @@ const commentNotification = async(userId: string, personId: string) =>{
             personId: userData.id,
             title: "Comment",
             body: `${userData.name} commented on your review`,
-            link: `/profile/${userData.id}`,
+            link: `/movie/${mediaId}`,
             isRead: false
         }
     })

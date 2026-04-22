@@ -96,7 +96,7 @@ const toggleReviewLike = async (reviewId: string, userId: string) => {
         });
 
         // Fire off the notification (Don't await it if you want the API to return faster!)
-        NotificationService.likeNotification(userId, isReviewExist.userId).catch(console.error);
+        NotificationService.likeNotification(userId, isReviewExist.userId, isReviewExist.mediaId).catch(console.error);
         
         return {
             success: true,

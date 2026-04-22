@@ -7,7 +7,7 @@
 
 import { prisma } from "../lib/prisma"
 
-export const notifiedByAdmin = async(userId:string, content: string)=>{
+export const notifiedByAdmin = async(userId:string, content: string, mediaId:string)=>{
     const result = await prisma.notification.create({
         data:{
             userId,

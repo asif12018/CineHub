@@ -33,7 +33,7 @@ const createComment = async(payload: ICreateComment, reviewId: string, userId: s
 
      //trigger notification
 
-     await NotificationService.commentNotification(userId, isTheReviewExist.user.id);
+     await NotificationService.commentNotification(userId, isTheReviewExist.user.id, isTheReviewExist.mediaId);
 
      return result
 }

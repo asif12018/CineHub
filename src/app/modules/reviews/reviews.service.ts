@@ -398,7 +398,7 @@ const updateReviewStatus = async(payload:any, reviewId:string) =>{
 
     //trigger notification
 
-    await notifiedByAdmin(result.userId, result.status as string)
+    await notifiedByAdmin(result.userId, result.status as string, result.mediaId)
 
     return result;
 }
