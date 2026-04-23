@@ -22,6 +22,7 @@ router.patch("/status/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewContr
 router.get("/", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.getUnPublishedReview);
 router.get("/checkUserReview/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.USER), ReviewController.isUserHasReview);
 router.delete("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.USER), ReviewController.deleteReview);
+router.get("/published", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.getPublishedReview);
 
 
 export const ReviewRoutes = router

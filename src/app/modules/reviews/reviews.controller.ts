@@ -137,6 +137,18 @@ const deleteReview = catchAsync(async(req:Request, res:Response)=>{
 
 
 
+const getPublishedReview  = catchAsync(async(req:Request, res:Response)=>{
+    const result = await ReviewService.getPublishedReview();
+       sendResponse(res,{
+        httpStatusCode: status.OK,
+        success: true,
+        message:"Published Review fetched",
+        data: result
+    })
+})
+
+
+
 export const ReviewController = {
     createReview,
     updateReview,
@@ -144,7 +156,8 @@ export const ReviewController = {
     getUnPublishedReview,
     getReviewByMedia,
     isUserHasReview,
-    deleteReview
+    deleteReview,
+    getPublishedReview
 }
 
 

@@ -477,6 +477,17 @@ const deleteReview = async(reviewId:string) =>{
 }
 
 
+const getPublishedReview = async()=>{
+  const result = await prisma.review.findMany({
+    where:{
+      status:"PUBLISHED"
+    }
+  });
+
+  return result
+}
+
+
 
 
 
@@ -489,5 +500,6 @@ export const ReviewService = {
     updateReviewStatus,
     getUnPublishedReview,
     isUserHasReview,
-    deleteReview 
+    deleteReview,
+    getPublishedReview 
 }
