@@ -1,6 +1,6 @@
 import { prisma } from "../../lib/prisma";
 // Import your enums based on your actual schema
-import { ReviewStatus, MediaStatus, PaymentStatus } from "@prisma/client"; 
+import { ReviewStatus, MediaStatus, PaymentStatus, SubscriptionStatus } from "@prisma/client";
 
 const getDashboardAnalytics = async () => {
   // 1. 🟢 PUBLISHED CONTENT & USER ACTIVITY (Counts)
@@ -9,7 +9,8 @@ const getDashboardAnalytics = async () => {
     publishedMovies,
     publishedSeries,
     pendingReviews,
-    totalRevenue
+    purchaseRevenue,
+    activeSubscriptionsCount
   ] = await Promise.all([
     prisma.user.count(), // Total registered users
     prisma.media.count({ where: { type: "MOVIE", status: MediaStatus.PUBLISHED } }),
@@ -21,6 +22,11 @@ const getDashboardAnalytics = async () => {
     prisma.purchase.aggregate({
       _sum: { amount: true },
       where: { paymentStatus: PaymentStatus.COMPLETED },
+    }),
+
+    // Count active subscriptions to calculate subscription revenue ($75 each)
+    prisma.subscription.count({
+      where: { status: SubscriptionStatus.ACTIVE },
     }),
   ]);
 
@@ -55,7 +61,7 @@ const getDashboardAnalytics = async () => {
       moviesCount: publishedMovies,
       seriesCount: publishedSeries,
       pendingReviewsCount: pendingReviews,
-      totalRevenue: totalRevenue._sum.amount || 0,
+      totalRevenue: (Number(purchaseRevenue._sum.amount) || 0) + (activeSubscriptionsCount * 75),
     },
     recentPendingReviews,
     topRatedMedia,
