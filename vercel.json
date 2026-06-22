@@ -2,14 +2,19 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/server.ts", 
+      "src": "api/index.ts", 
       "use": "@vercel/node"
     }
   ],
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": "src/app/templates/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/src/server.ts"
+      "destination": "/api/index.ts"
     }
   ]
 }
