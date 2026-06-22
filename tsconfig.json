@@ -8,8 +8,7 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "ignoreDeprecations": "5.0"
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src", "prisma.config.ts", "eslint.config.mjs", "src/app/routes", "api"],
   "exclude": ["node_modules", "dist"]
