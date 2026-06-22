@@ -79,7 +79,8 @@ export const sendEmail = async ({
     return result;
 
   } catch (err: any) {
-    console.log("Email sending error", err.message);
-    throw new AppError(status.INTERNAL_SERVER_ERROR, "Failed to send email");
+    console.error("Email sending error:", err);
+    // Bubble up the actual error message instead of a generic one!
+    throw new AppError(status.INTERNAL_SERVER_ERROR, `Failed to send email: ${err.message}`);
   }
 };

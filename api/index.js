@@ -258,8 +258,8 @@ var sendEmail = async ({
     console.log(`Email sent to ${to}:`, result.data.id);
     return result;
   } catch (err) {
-    console.log("Email sending error", err.message);
-    throw new AppError_default(status.INTERNAL_SERVER_ERROR, "Failed to send email");
+    console.error("Email sending error:", err);
+    throw new AppError_default(status.INTERNAL_SERVER_ERROR, `Failed to send email: ${err.message}`);
   }
 };
 
