@@ -1,11 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.ts", 
-      "use": "@vercel/node"
-    }
-  ],
   "functions": {
     "api/index.ts": {
       "includeFiles": "src/app/templates/**"
@@ -14,7 +8,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/index.ts"
+      "destination": "/api/index"
     }
   ]
 }
