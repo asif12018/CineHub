@@ -441,7 +441,7 @@ const createCheckoutSession = async (
     const rawPrice =
       type === "RENTAL" ? (movie.rentPrice?.toNumber() ?? 3) : (movie.buyPrice?.toNumber() ?? 15);
 
-    unitAmount = Math.round(rawPrice * 100); 
+    unitAmount = Math.round(rawPrice * 100);
     name = `${type === "RENTAL" ? "Rent" : "Buy"}: ${movie.title}`;
     mode = "payment";
 
@@ -455,11 +455,11 @@ const createCheckoutSession = async (
     });
     dbRecordId = purchase.id;
 
-  // ==========================================
-  // SUBSCRIPTION LOGIC
-  // ==========================================
+    // ==========================================
+    // SUBSCRIPTION LOGIC
+    // ==========================================
   } else if (type === "SUBSCRIPTION") {
-    
+
     // 1. Check if the user already exists in the subscription table
     const existingSubscription = await prisma.subscription.findUnique({
       where: { userId },
@@ -467,8 +467,8 @@ const createCheckoutSession = async (
 
     // 2. If they have an ACTIVE subscription and it hasn't expired, block them from buying again
     if (
-      existingSubscription && 
-      existingSubscription.status === SubscriptionStatus.ACTIVE && 
+      existingSubscription &&
+      existingSubscription.status === SubscriptionStatus.ACTIVE &&
       existingSubscription.currentPeriodEnd > now
     ) {
       throw new AppError(status.CONFLICT, "You already have an active premium subscription.");
@@ -481,7 +481,7 @@ const createCheckoutSession = async (
     // 3. Upsert is now safe because we know they aren't currently active
     const sub = await prisma.subscription.upsert({
       where: { userId },
-      update: { status: SubscriptionStatus.PENDING }, 
+      update: { status: SubscriptionStatus.PENDING },
       create: {
         userId,
         currentPeriodStart: now,
@@ -636,10 +636,10 @@ const getSubscriptionInfo = async (userId: string) => {
 
   // 🟢 THE FIX: Return the full subscription object!
   // Now your frontend will receive cancelAtPeriodEnd and currentPeriodEnd
-  return subscription; 
+  return subscription;
 };
 
-const getUserPurchaseHistory = async(userId: string) => {
+const getUserPurchaseHistory = async (userId: string) => {
   // 1. Fetch all movie/series purchases
   // 🟢 FIXED: Changed findFirst to findMany to get the FULL history
   const purchaseHistory = await prisma.purchase.findMany({

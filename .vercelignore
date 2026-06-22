@@ -3,4 +3,3 @@
 # The pre-built api/index.js bundle handles all the code.
 src/**/*.ts
 api/_source.ts
-tsconfig.json
