@@ -34,7 +34,7 @@ var require_ms = __commonJS({
     var d = h * 24;
     var w = d * 7;
     var y = d * 365.25;
-    module.exports = function(val, options) {
+    module.exports = function (val, options) {
       options = options || {};
       var type = typeof val;
       if (type === "string" && val.length > 0) {
