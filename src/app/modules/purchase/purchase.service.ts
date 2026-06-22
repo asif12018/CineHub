@@ -1,4 +1,4 @@
-import * as Stripe from "stripe";
+import Stripe from "stripe";
 import { prisma } from "../../lib/prisma";
 import { stripe } from "../../config/stripe.config";
 import config from "../../config";
