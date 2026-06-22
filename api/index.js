@@ -1,4 +1,3 @@
-"use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -7,10 +6,6 @@ var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-};
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
@@ -28,11 +23,10 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // node_modules/ms/index.js
 var require_ms = __commonJS({
-  "node_modules/ms/index.js"(exports2, module2) {
+  "node_modules/ms/index.js"(exports, module) {
     "use strict";
     var s = 1e3;
     var m = s * 60;
@@ -40,7 +34,7 @@ var require_ms = __commonJS({
     var d = h * 24;
     var w = d * 7;
     var y = d * 365.25;
-    module2.exports = function(val, options) {
+    module.exports = function(val, options) {
       options = options || {};
       var type = typeof val;
       if (type === "string" && val.length > 0) {
@@ -147,21 +141,14 @@ var require_ms = __commonJS({
   }
 });
 
-// api/_source.ts
-var source_exports = {};
-__export(source_exports, {
-  default: () => source_default
-});
-module.exports = __toCommonJS(source_exports);
-
 // src/app.ts
-var import_express15 = __toESM(require("express"));
-var import_cors = __toESM(require("cors"));
+import express3 from "express";
+import cors from "cors";
 
 // src/app/config/index.ts
-var import_dotenv = __toESM(require("dotenv"));
-var import_path = __toESM(require("path"));
-import_dotenv.default.config({ path: import_path.default.join(process.cwd(), ".env") });
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({ path: path.join(process.cwd(), ".env") });
 var config_default = {
   PORT: process.env.PORT,
   DATABASE_URL: process.env.DATABASE_URL,
@@ -197,13 +184,13 @@ var config_default = {
 };
 
 // src/app.ts
-var import_node = require("better-auth/node");
+import { toNodeHandler } from "better-auth/node";
 
 // src/app/lib/auth.ts
-var import_better_auth = require("better-auth");
+import { betterAuth } from "better-auth";
 
 // src/app/utils/email.ts
-var import_googleapis = require("googleapis");
+import { google } from "googleapis";
 
 // src/errorHelpers/AppError.ts
 var AppError = class extends Error {
@@ -221,10 +208,10 @@ var AppError = class extends Error {
 var AppError_default = AppError;
 
 // src/app/utils/email.ts
-var import_http_status = __toESM(require("http-status"));
-var import_path2 = __toESM(require("path"));
-var import_ejs = __toESM(require("ejs"));
-var OAuth2 = import_googleapis.google.auth.OAuth2;
+import status from "http-status";
+import path2 from "path";
+import ejs from "ejs";
+var OAuth2 = google.auth.OAuth2;
 var createOAuth2Client = () => {
   const oauth2Client = new OAuth2(
     config_default.GMAIL_CLIENT_ID,
@@ -243,14 +230,14 @@ var sendEmail = async ({
   to
 }) => {
   try {
-    const templatePath = import_path2.default.resolve(
+    const templatePath = path2.resolve(
       process.cwd(),
       `src/app/templates/${templateName}.ejs`
     );
-    const html = await import_ejs.default.renderFile(templatePath, templateData);
+    const html = await ejs.renderFile(templatePath, templateData);
     const oauth2Client = createOAuth2Client();
     const accessToken = await oauth2Client.getAccessToken();
-    const gmail = import_googleapis.google.gmail({ version: "v1", auth: oauth2Client });
+    const gmail = google.gmail({ version: "v1", auth: oauth2Client });
     const emailLines = [
       `From: "My App" <${config_default.GMAIL_USER}>`,
       `To: ${to}`,
@@ -272,28 +259,28 @@ var sendEmail = async ({
     return result;
   } catch (err) {
     console.log("Email sending error", err.message);
-    throw new AppError_default(import_http_status.default.INTERNAL_SERVER_ERROR, "Failed to send email");
+    throw new AppError_default(status.INTERNAL_SERVER_ERROR, "Failed to send email");
   }
 };
 
 // src/app/lib/auth.ts
-var import_prisma = require("better-auth/adapters/prisma");
+import { prismaAdapter } from "better-auth/adapters/prisma";
 
 // src/app/lib/prisma.ts
-var import_config2 = require("dotenv/config");
-var import_adapter_pg = require("@prisma/adapter-pg");
-var import_client = require("@prisma/client");
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@prisma/client";
 var connectionString = config_default.DATABASE_URL;
-var adapter = new import_adapter_pg.PrismaPg({ connectionString });
-var prisma = new import_client.PrismaClient({ adapter });
+var adapter = new PrismaPg({ connectionString });
+var prisma = new PrismaClient({ adapter });
 
 // src/app/lib/auth.ts
-var import_plugins = require("better-auth/plugins");
-var auth = (0, import_better_auth.betterAuth)({
+import { bearer, emailOTP } from "better-auth/plugins";
+var auth = betterAuth({
   baseURL: config_default.BETTER_AUTH_URL,
   basePath: "/api/v1/auth",
   secret: config_default.BETTER_AUTH_SECRET,
-  database: (0, import_prisma.prismaAdapter)(prisma, {
+  database: prismaAdapter(prisma, {
     provider: "postgresql"
     // or "mysql", "postgresql", ...etc
   }),
@@ -351,9 +338,9 @@ var auth = (0, import_better_auth.betterAuth)({
     }
   },
   plugins: [
-    (0, import_plugins.bearer)(),
+    bearer(),
     //plugins to send email for email verificaiton
-    (0, import_plugins.emailOTP)({
+    emailOTP({
       overrideDefaultEmailVerification: true,
       async sendVerificationOTP({ email, otp, type }) {
         if (type === "email-verification") {
@@ -460,13 +447,13 @@ var auth = (0, import_better_auth.betterAuth)({
 });
 
 // src/app.ts
-var import_cookie_parser = __toESM(require("cookie-parser"));
+import cookieParser from "cookie-parser";
 
 // src/app/routes/index.ts
-var import_express13 = require("express");
+import { Router as Router12 } from "express";
 
 // src/app/modules/auth/auth.routes.ts
-var import_express = require("express");
+import { Router } from "express";
 
 // src/app/shared/catchAsync.ts
 var catchAsync = (fn) => {
@@ -480,17 +467,17 @@ var catchAsync = (fn) => {
 };
 
 // src/app/modules/auth/auth.service.ts
-var import_http_status3 = __toESM(require("http-status"));
+import status3 from "http-status";
 
 // src/app/utils/jwt.ts
-var import_jsonwebtoken = __toESM(require("jsonwebtoken"));
+import jwt from "jsonwebtoken";
 var createToken = (payload, secret, { expiresIn }) => {
-  const token = import_jsonwebtoken.default.sign(payload, secret, { expiresIn });
+  const token = jwt.sign(payload, secret, { expiresIn });
   return token;
 };
 var verifyToken = (token, secret) => {
   try {
-    const decode = import_jsonwebtoken.default.verify(token, secret);
+    const decode = jwt.verify(token, secret);
     return {
       success: true,
       data: decode
@@ -504,7 +491,7 @@ var verifyToken = (token, secret) => {
   }
 };
 var decodeToken = (token) => {
-  const decode = import_jsonwebtoken.default.decode(token);
+  const decode = jwt.decode(token);
   return decode;
 };
 var jwtUtils = {
@@ -530,7 +517,7 @@ var CookieUtils = {
 };
 
 // src/app/utils/token.ts
-var import_ms = __toESM(require_ms());
+var import_ms = __toESM(require_ms(), 1);
 var getAccessToken = (payload) => {
   const accessToken = jwtUtils.createToken(
     payload,
@@ -587,12 +574,12 @@ var tokenUtils = {
 };
 
 // src/app/modules/auth/auth.service.ts
-var import_ms2 = __toESM(require_ms());
+var import_ms2 = __toESM(require_ms(), 1);
 
 // src/app/utils/cloudinary.config.ts
-var import_cloudinary = require("cloudinary");
-var import_http_status2 = __toESM(require("http-status"));
-import_cloudinary.v2.config({
+import { v2 as cloudinary } from "cloudinary";
+import status2 from "http-status";
+cloudinary.config({
   cloud_name: config_default.CLOUDINARY_CLOUD_NAME,
   api_key: config_default.CLOUDINARY_API_KEY,
   api_secret: config_default.CLOUDINARY_SECRET
@@ -603,15 +590,15 @@ var deleteFileFromCloudinary = async (url) => {
     const match = url.match(regex);
     if (match && match[1]) {
       const publicId = match[1];
-      await import_cloudinary.v2.uploader.destroy(publicId, { resource_type: "image" });
+      await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
       console.log(`File ${publicId} deleted from cloudinary`);
     }
   } catch (err) {
     console.log("deletation failed. error:", err);
-    throw new AppError_default(import_http_status2.default.INTERNAL_SERVER_ERROR, "Failed to delete file from cloudinary");
+    throw new AppError_default(status2.INTERNAL_SERVER_ERROR, "Failed to delete file from cloudinary");
   }
 };
-var cloudinaryUpload = import_cloudinary.v2;
+var cloudinaryUpload = cloudinary;
 
 // src/app/modules/auth/auth.service.ts
 var registerUser = async (payload) => {
@@ -625,13 +612,13 @@ var registerUser = async (payload) => {
     }
   });
   if (isUserExist) {
-    throw new AppError_default(import_http_status3.default.BAD_REQUEST, "User with email already exist");
+    throw new AppError_default(status3.BAD_REQUEST, "User with email already exist");
   }
   const data = await auth.api.signUpEmail({
     body: payload
   });
   if (!data.user) {
-    throw new AppError_default(import_http_status3.default.BAD_REQUEST, "Failed to register a user");
+    throw new AppError_default(status3.BAD_REQUEST, "Failed to register a user");
   }
   const accessToken = tokenUtils.getAccessToken({
     userId: data.user.id,
@@ -664,11 +651,11 @@ var logInUser = async (payload) => {
   );
   const result = await auth.api.signInEmail({ body: payload });
   if (!result) {
-    throw new AppError_default(import_http_status3.default.BAD_REQUEST, "invalid email or password");
+    throw new AppError_default(status3.BAD_REQUEST, "invalid email or password");
   }
   if (result.user.banned === true) {
     throw new AppError_default(
-      import_http_status3.default.UNAUTHORIZED,
+      status3.UNAUTHORIZED,
       "unfortunatly you are banned for violating our terms and conditions"
     );
   }
@@ -717,7 +704,7 @@ var updateUser = async (id, payload, user) => {
 var verifyEmailOtp = async (payload) => {
   const result = await auth.api.verifyEmailOTP({ body: payload });
   if (!result) {
-    throw new AppError_default(import_http_status3.default.BAD_REQUEST, "invalid email or otp");
+    throw new AppError_default(status3.BAD_REQUEST, "invalid email or otp");
   }
   return result;
 };
@@ -737,7 +724,7 @@ var getMe = async (user) => {
   });
   if (user.userId !== userData.id) {
     throw new AppError_default(
-      import_http_status3.default.UNAUTHORIZED,
+      status3.UNAUTHORIZED,
       "You dont have permission to perform this action"
     );
   }
@@ -753,11 +740,11 @@ var getNewToken = async (refreshToken, sessionToken) => {
     }
   });
   if (!isSessionTokenExist) {
-    throw new AppError_default(import_http_status3.default.BAD_REQUEST, "invalid session token");
+    throw new AppError_default(status3.BAD_REQUEST, "invalid session token");
   }
   if (isSessionTokenExist.user.banned === true) {
     throw new AppError_default(
-      import_http_status3.default.UNAUTHORIZED,
+      status3.UNAUTHORIZED,
       "You are banned from accessing this service"
     );
   }
@@ -766,7 +753,7 @@ var getNewToken = async (refreshToken, sessionToken) => {
     config_default.REFRESH_TOKEN_SECRET
   );
   if (!verifiedRefreshToken.success && verifiedRefreshToken.err) {
-    throw new AppError_default(import_http_status3.default.UNAUTHORIZED, "invalid refresh token");
+    throw new AppError_default(status3.UNAUTHORIZED, "invalid refresh token");
   }
   const data = verifiedRefreshToken.data;
   const newAccessToken = tokenUtils.getAccessToken({
@@ -802,11 +789,11 @@ var forgetPassword = async (email) => {
     }
   });
   if (!isUserExist) {
-    throw new AppError_default(import_http_status3.default.BAD_REQUEST, "User not found");
+    throw new AppError_default(status3.BAD_REQUEST, "User not found");
   }
   if (isUserExist.banned === true) {
     throw new AppError_default(
-      import_http_status3.default.UNAUTHORIZED,
+      status3.UNAUTHORIZED,
       "You are banned from accessing this service"
     );
   }
@@ -823,11 +810,11 @@ var resetPassword = async (email, otp, newPassword) => {
     }
   });
   if (!isUserExist) {
-    throw new AppError_default(import_http_status3.default.BAD_REQUEST, "User not found");
+    throw new AppError_default(status3.BAD_REQUEST, "User not found");
   }
   if (isUserExist.banned === true) {
     throw new AppError_default(
-      import_http_status3.default.UNAUTHORIZED,
+      status3.UNAUTHORIZED,
       "You are banned from accessing this service"
     );
   }
@@ -857,7 +844,7 @@ var resendOTP = async (email) => {
     return null;
   } catch (error) {
     throw new AppError_default(
-      import_http_status3.default.INTERNAL_SERVER_ERROR,
+      status3.INTERNAL_SERVER_ERROR,
       "Failed to generate new OTP"
     );
   }
@@ -875,7 +862,7 @@ var resendOTPForgetPassword = async (email) => {
     return null;
   } catch (error) {
     throw new AppError_default(
-      import_http_status3.default.INTERNAL_SERVER_ERROR,
+      status3.INTERNAL_SERVER_ERROR,
       "Failed to generate new OTP"
     );
   }
@@ -900,7 +887,7 @@ var getMeAuth = async (user) => {
     }
   });
   if (!isUserExist) {
-    throw new AppError_default(import_http_status3.default.NOT_FOUND, "User not exist");
+    throw new AppError_default(status3.NOT_FOUND, "User not exist");
   }
   return isUserExist;
 };
@@ -966,7 +953,7 @@ var sendResponse = (res, responseData) => {
 };
 
 // src/app/modules/auth/auth.controller.ts
-var import_http_status4 = __toESM(require("http-status"));
+import status4 from "http-status";
 var registerUser2 = catchAsync(async (req, res) => {
   let payload = req?.body;
   console.log(payload, "payload from server");
@@ -981,7 +968,7 @@ var registerUser2 = catchAsync(async (req, res) => {
   tokenUtils.setRefreshTokenCookie(res, result.refreshToken);
   tokenUtils.setBetterAuthSessionCookie(res, result.token);
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.CREATED,
+    httpStatusCode: status4.CREATED,
     success: true,
     message: "User registered successfully",
     data: result
@@ -993,7 +980,7 @@ var logInUser2 = catchAsync(async (req, res) => {
   tokenUtils.setRefreshTokenCookie(res, result.refreshToken);
   tokenUtils.setBetterAuthSessionCookie(res, result.token);
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "User logged in successfully",
     data: result
@@ -1008,7 +995,7 @@ var updateUser2 = catchAsync(async (req, res) => {
   }
   const result = await AuthServices.updateUser(id, payload, user);
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "User updated successfully",
     data: result
@@ -1017,7 +1004,7 @@ var updateUser2 = catchAsync(async (req, res) => {
 var verifyEmailOtp2 = catchAsync(async (req, res) => {
   const result = await AuthServices.verifyEmailOtp(req.body);
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "Email verified successfully",
     data: result
@@ -1027,7 +1014,7 @@ var getMe2 = catchAsync(async (req, res) => {
   const user = req.user;
   const result = await AuthServices.getMe(user);
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "User profile fetched successfully",
     data: result
@@ -1037,7 +1024,7 @@ var getNewRefreshToken = catchAsync(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   const betterAuthSessionToken = req.cookies["better-auth.session_token"];
   if (!refreshToken) {
-    throw new AppError_default(import_http_status4.default.UNAUTHORIZED, "Refresh token not found");
+    throw new AppError_default(status4.UNAUTHORIZED, "Refresh token not found");
   }
   const result = await AuthServices.getNewToken(
     refreshToken,
@@ -1048,7 +1035,7 @@ var getNewRefreshToken = catchAsync(async (req, res) => {
   tokenUtils.setRefreshTokenCookie(res, newRefreshToken);
   tokenUtils.setBetterAuthSessionCookie(res, sessionToken);
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "New refresh token generated successfully",
     data: result
@@ -1057,7 +1044,7 @@ var getNewRefreshToken = catchAsync(async (req, res) => {
 var forgetPassword2 = catchAsync(async (req, res) => {
   const result = await AuthServices.forgetPassword(req.body.email);
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "Forgot password email sent successfully",
     data: result
@@ -1070,7 +1057,7 @@ var resetPassword2 = catchAsync(async (req, res) => {
     req.body.newPassword
   );
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "Password reset successfully",
     data: result
@@ -1095,7 +1082,7 @@ var logOutUser2 = catchAsync(async (req, res) => {
     sameSite: "none"
   });
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "User logged out successfully",
     data: result
@@ -1105,7 +1092,7 @@ var resendOTP2 = catchAsync(async (req, res) => {
   const { email } = req.body;
   if (!email) {
     return sendResponse(res, {
-      httpStatusCode: import_http_status4.default.BAD_REQUEST,
+      httpStatusCode: status4.BAD_REQUEST,
       success: false,
       message: "Email is required",
       data: null
@@ -1113,7 +1100,7 @@ var resendOTP2 = catchAsync(async (req, res) => {
   }
   await AuthServices.resendOTP(email);
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "A new OTP has been sent to your email",
     data: null
@@ -1123,7 +1110,7 @@ var resendOTPForgetPassword2 = catchAsync(async (req, res) => {
   const { email } = req.body;
   if (!email) {
     return sendResponse(res, {
-      httpStatusCode: import_http_status4.default.BAD_REQUEST,
+      httpStatusCode: status4.BAD_REQUEST,
       success: false,
       message: "Email is required",
       data: null
@@ -1131,7 +1118,7 @@ var resendOTPForgetPassword2 = catchAsync(async (req, res) => {
   }
   await AuthServices.resendOTPForgetPassword(email);
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "A new OTP has been sent to your email",
     data: null
@@ -1142,13 +1129,13 @@ var getMeAuth2 = catchAsync(async (req, res) => {
   console.log("this is user:", user);
   if (!user) {
     throw new AppError_default(
-      import_http_status4.default.UNAUTHORIZED,
+      status4.UNAUTHORIZED,
       "Unauthorized access! User is not authenticated."
     );
   }
   const result = await AuthServices.getMeAuth(user);
   sendResponse(res, {
-    httpStatusCode: import_http_status4.default.OK,
+    httpStatusCode: status4.OK,
     success: true,
     message: "User profile fetch successfully",
     data: result
@@ -1224,9 +1211,9 @@ var AuthController = {
 };
 
 // src/app/utils/muler.config.ts
-var import_multer_storage_cloudinary = require("multer-storage-cloudinary");
-var import_multer = __toESM(require("multer"));
-var storage = new import_multer_storage_cloudinary.CloudinaryStorage({
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import multer from "multer";
+var storage = new CloudinaryStorage({
   cloudinary: cloudinaryUpload,
   params: async (req, file) => {
     const originalName = file.originalname;
@@ -1267,19 +1254,19 @@ var fileFilter = (req, file, cb) => {
     );
   }
 };
-var multerUpload = (0, import_multer.default)({
+var multerUpload = multer({
   storage,
   fileFilter
 });
 
 // src/app/middlewares/checkAuth.ts
-var import_http_status5 = __toESM(require("http-status"));
+import status5 from "http-status";
 var checkAuth = (...authRoles) => async (req, res, next) => {
   try {
     const sessionToken = CookieUtils.getCookie(req, "better-auth.session_token");
     const accessToken = CookieUtils.getCookie(req, "accessToken");
     if (!sessionToken && !accessToken) {
-      throw new AppError_default(import_http_status5.default.UNAUTHORIZED, "Unauthorized access! No token provided.");
+      throw new AppError_default(status5.UNAUTHORIZED, "Unauthorized access! No token provided.");
     }
     let isAuthenticated = false;
     if (sessionToken) {
@@ -1305,10 +1292,10 @@ var checkAuth = (...authRoles) => async (req, res, next) => {
           console.log("Session Expiring Soon!!");
         }
         if (user.banned === true) {
-          throw new AppError_default(import_http_status5.default.UNAUTHORIZED, "Unauthorized access! User is not active.");
+          throw new AppError_default(status5.UNAUTHORIZED, "Unauthorized access! User is not active.");
         }
         if (authRoles.length > 0 && !authRoles.includes(user.role)) {
-          throw new AppError_default(import_http_status5.default.FORBIDDEN, "Forbidden access! You do not have permission to access this resource.");
+          throw new AppError_default(status5.FORBIDDEN, "Forbidden access! You do not have permission to access this resource.");
         }
         req.user = {
           userId: user.id,
@@ -1325,11 +1312,11 @@ var checkAuth = (...authRoles) => async (req, res, next) => {
         config_default.ACCESS_TOKEN_SECRET
       );
       if (!verifiedToken.success) {
-        throw new AppError_default(import_http_status5.default.UNAUTHORIZED, "Unauthorized access! Invalid access token.");
+        throw new AppError_default(status5.UNAUTHORIZED, "Unauthorized access! Invalid access token.");
       }
       const decodedData = verifiedToken.data;
       if (authRoles.length > 0 && !authRoles.includes(decodedData?.role)) {
-        throw new AppError_default(import_http_status5.default.FORBIDDEN, "Forbidden access! You do not have permission to access this resource.");
+        throw new AppError_default(status5.FORBIDDEN, "Forbidden access! You do not have permission to access this resource.");
       }
       req.user = {
         userId: decodedData.userId,
@@ -1340,7 +1327,7 @@ var checkAuth = (...authRoles) => async (req, res, next) => {
       return next();
     }
     if (!isAuthenticated) {
-      throw new AppError_default(import_http_status5.default.UNAUTHORIZED, "Unauthorized access! Invalid or expired token.");
+      throw new AppError_default(status5.UNAUTHORIZED, "Unauthorized access! Invalid or expired token.");
     }
   } catch (error) {
     next(error);
@@ -1348,32 +1335,32 @@ var checkAuth = (...authRoles) => async (req, res, next) => {
 };
 
 // src/app/modules/auth/auth.routes.ts
-var import_client2 = require("@prisma/client");
-var router = (0, import_express.Router)();
+import { Role } from "@prisma/client";
+var router = Router();
 router.post("/register", multerUpload.single("image"), AuthController.registerUser);
 router.post("/login", AuthController.logInUser);
 router.post("/verify-email-otp", AuthController.verifyEmailOtp);
-router.patch("/update-user/:id", checkAuth(import_client2.Role.USER, import_client2.Role.ADMIN, import_client2.Role.SUPER_ADMIN), multerUpload.single("image"), AuthController.updateUser);
-router.get("/get-me", checkAuth(import_client2.Role.USER, import_client2.Role.ADMIN, import_client2.Role.SUPER_ADMIN), AuthController.getMe);
+router.patch("/update-user/:id", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), multerUpload.single("image"), AuthController.updateUser);
+router.get("/get-me", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), AuthController.getMe);
 router.post("/refresh-token", AuthController.getNewRefreshToken);
 router.post("/forget-password", AuthController.forgetPassword);
 router.post("/reset-password", AuthController.resetPassword);
-router.post("/logout", checkAuth(import_client2.Role.USER, import_client2.Role.ADMIN, import_client2.Role.SUPER_ADMIN), AuthController.logOutUser);
+router.post("/logout", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), AuthController.logOutUser);
 router.post("/resend-otp", AuthController.resendOTP);
 router.post("/otp-forget-password", AuthController.resendOTPForgetPassword);
-router.get("/authUser", checkAuth(import_client2.Role.ADMIN, import_client2.Role.SUPER_ADMIN, import_client2.Role.USER), AuthController.getMeAuth);
+router.get("/authUser", checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.USER), AuthController.getMeAuth);
 router.get("/login/google", AuthController.googleLogin);
 router.get("/google/success", AuthController.googleLoginSuccess);
 router.get("/oauth/error", AuthController.handleOAuthError);
 var AuthRoutes = router;
 
 // src/app/modules/user/user.routes.ts
-var import_express2 = require("express");
-var import_client4 = require("@prisma/client");
+import { Router as Router2 } from "express";
+import { Role as Role3 } from "@prisma/client";
 
 // src/app/modules/user/user.service.ts
-var import_http_status6 = __toESM(require("http-status"));
-var import_client3 = require("@prisma/client");
+import status6 from "http-status";
+import { Role as Role2 } from "@prisma/client";
 var getAllUser = async () => {
   const result = await prisma.user.findMany();
   return result;
@@ -1385,14 +1372,14 @@ var bannedAUser = async (id, adminId) => {
     }
   });
   if (isUserExist.banned === true) {
-    throw new AppError_default(import_http_status6.default.BAD_REQUEST, "User is already banned");
+    throw new AppError_default(status6.BAD_REQUEST, "User is already banned");
   }
-  if (isUserExist.role === import_client3.Role.SUPER_ADMIN) {
-    throw new AppError_default(import_http_status6.default.BAD_REQUEST, "Super admin can't be banned");
+  if (isUserExist.role === Role2.SUPER_ADMIN) {
+    throw new AppError_default(status6.BAD_REQUEST, "Super admin can't be banned");
   }
   ;
   if (isUserExist.id === adminId) {
-    throw new AppError_default(import_http_status6.default.BAD_REQUEST, "You can't ban yourself");
+    throw new AppError_default(status6.BAD_REQUEST, "You can't ban yourself");
   }
   const result = await prisma.user.update({
     where: {
@@ -1411,7 +1398,7 @@ var unbannedAUser = async (id) => {
     }
   });
   if (isUserExist.banned === false) {
-    throw new AppError_default(import_http_status6.default.BAD_REQUEST, "User is already unbanned");
+    throw new AppError_default(status6.BAD_REQUEST, "User is already unbanned");
   }
   const result = await prisma.user.update({
     where: {
@@ -1430,11 +1417,11 @@ var UserServices = {
 };
 
 // src/app/modules/user/user.controller.ts
-var import_http_status7 = __toESM(require("http-status"));
+import status7 from "http-status";
 var getAllUser2 = catchAsync(async (req, res) => {
   const result = await UserServices.getAllUser();
   sendResponse(res, {
-    httpStatusCode: import_http_status7.default.OK,
+    httpStatusCode: status7.OK,
     success: true,
     message: "User fetched successfully",
     data: result
@@ -1445,7 +1432,7 @@ var bannedAUser2 = catchAsync(async (req, res) => {
   const adminId = req.user.id;
   const result = await UserServices.bannedAUser(id, adminId);
   sendResponse(res, {
-    httpStatusCode: import_http_status7.default.OK,
+    httpStatusCode: status7.OK,
     success: true,
     message: "User status updated successfully",
     data: result
@@ -1455,7 +1442,7 @@ var unbannedAUser2 = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await UserServices.unbannedAUser(id);
   sendResponse(res, {
-    httpStatusCode: import_http_status7.default.OK,
+    httpStatusCode: status7.OK,
     success: true,
     message: "User status updated successfully",
     data: result
@@ -1468,21 +1455,21 @@ var UserController = {
 };
 
 // src/app/modules/user/user.routes.ts
-var router2 = (0, import_express2.Router)();
-router2.get("/", checkAuth(import_client4.Role.ADMIN, import_client4.Role.SUPER_ADMIN), UserController.getAllUser);
-router2.patch("/ban/:id", checkAuth(import_client4.Role.ADMIN, import_client4.Role.SUPER_ADMIN), UserController.bannedAUser);
-router2.patch("/unban/:id", checkAuth(import_client4.Role.ADMIN, import_client4.Role.SUPER_ADMIN), UserController.unbannedAUser);
+var router2 = Router2();
+router2.get("/", checkAuth(Role3.ADMIN, Role3.SUPER_ADMIN), UserController.getAllUser);
+router2.patch("/ban/:id", checkAuth(Role3.ADMIN, Role3.SUPER_ADMIN), UserController.bannedAUser);
+router2.patch("/unban/:id", checkAuth(Role3.ADMIN, Role3.SUPER_ADMIN), UserController.unbannedAUser);
 var UserRoutes = router2;
 
 // src/app/modules/genre/genre.routes.ts
-var import_express3 = require("express");
-var import_client5 = require("@prisma/client");
+import { Router as Router3 } from "express";
+import { Role as Role4 } from "@prisma/client";
 
 // src/app/modules/genre/genre.controller.ts
-var import_http_status9 = __toESM(require("http-status"));
+import status9 from "http-status";
 
 // src/app/modules/genre/genre.services.ts
-var import_http_status8 = __toESM(require("http-status"));
+import status8 from "http-status";
 var createGenre = async (payload) => {
   const result = await prisma.genre.create({
     data: payload
@@ -1504,7 +1491,7 @@ var updateGenre = async (id, payload) => {
     where: { id }
   });
   if (!isGenreExist) {
-    throw new AppError_default(import_http_status8.default.NOT_FOUND, "Genre not found");
+    throw new AppError_default(status8.NOT_FOUND, "Genre not found");
   }
   const result = await prisma.genre.update({
     where: { id },
@@ -1517,7 +1504,7 @@ var deleteGenre = async (id) => {
     where: { id }
   });
   if (!isGenreExist) {
-    throw new AppError_default(import_http_status8.default.NOT_FOUND, "Genre not found");
+    throw new AppError_default(status8.NOT_FOUND, "Genre not found");
   }
   const result = await prisma.genre.update({
     where: { id },
@@ -1539,7 +1526,7 @@ var GenreService = {
 var createGenre2 = catchAsync(async (req, res) => {
   const result = await GenreService.createGenre(req.body);
   sendResponse(res, {
-    httpStatusCode: import_http_status9.default.CREATED,
+    httpStatusCode: status9.CREATED,
     success: true,
     message: "Genre created successfully",
     data: result
@@ -1549,7 +1536,7 @@ var updateGenre2 = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await GenreService.updateGenre(id, req.body);
   sendResponse(res, {
-    httpStatusCode: import_http_status9.default.OK,
+    httpStatusCode: status9.OK,
     success: true,
     message: "Genre updated successfully",
     data: result
@@ -1559,7 +1546,7 @@ var deleteGenre2 = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await GenreService.deleteGenre(id);
   sendResponse(res, {
-    httpStatusCode: import_http_status9.default.OK,
+    httpStatusCode: status9.OK,
     success: true,
     message: "Genre deleted successfully",
     data: result
@@ -1568,7 +1555,7 @@ var deleteGenre2 = catchAsync(async (req, res) => {
 var getAllGenre2 = catchAsync(async (req, res) => {
   const result = await GenreService.getAllGenre();
   sendResponse(res, {
-    httpStatusCode: import_http_status9.default.OK,
+    httpStatusCode: status9.OK,
     success: true,
     message: "Genre fetched successfully",
     data: result
@@ -1578,7 +1565,7 @@ var getGenreById2 = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await GenreService.getGenreById(id);
   sendResponse(res, {
-    httpStatusCode: import_http_status9.default.OK,
+    httpStatusCode: status9.OK,
     success: true,
     message: "Genre fetched successfully",
     data: result
@@ -1613,14 +1600,14 @@ var validateRequest = (ZodSchema) => {
 };
 
 // src/app/modules/genre/genre.validation.ts
-var import_zod = __toESM(require("zod"));
-var createGenre3 = import_zod.default.object({
-  name: import_zod.default.string().min(3, "Genre name must be at least 3 characters long"),
-  slug: import_zod.default.string().min(3, "Genre slug must be at least 3 characters long")
+import z from "zod";
+var createGenre3 = z.object({
+  name: z.string().min(3, "Genre name must be at least 3 characters long"),
+  slug: z.string().min(3, "Genre slug must be at least 3 characters long")
 });
-var updateGenre3 = import_zod.default.object({
-  name: import_zod.default.string().min(3, "Genre name must be at least 3 characters long").optional(),
-  slug: import_zod.default.string().min(3, "Genre slug must be at least 3 characters long").optional()
+var updateGenre3 = z.object({
+  name: z.string().min(3, "Genre name must be at least 3 characters long").optional(),
+  slug: z.string().min(3, "Genre slug must be at least 3 characters long").optional()
 });
 var GenreValidation = {
   createGenre: createGenre3,
@@ -1628,26 +1615,26 @@ var GenreValidation = {
 };
 
 // src/app/modules/genre/genre.routes.ts
-var router3 = (0, import_express3.Router)();
-router3.post("/", checkAuth(import_client5.Role.ADMIN, import_client5.Role.SUPER_ADMIN), validateRequest(GenreValidation.createGenre), GenreController.createGenre);
-router3.patch("/:id", checkAuth(import_client5.Role.ADMIN, import_client5.Role.SUPER_ADMIN), validateRequest(GenreValidation.updateGenre), GenreController.updateGenre);
-router3.delete("/:id", checkAuth(import_client5.Role.ADMIN, import_client5.Role.SUPER_ADMIN), GenreController.deleteGenre);
+var router3 = Router3();
+router3.post("/", checkAuth(Role4.ADMIN, Role4.SUPER_ADMIN), validateRequest(GenreValidation.createGenre), GenreController.createGenre);
+router3.patch("/:id", checkAuth(Role4.ADMIN, Role4.SUPER_ADMIN), validateRequest(GenreValidation.updateGenre), GenreController.updateGenre);
+router3.delete("/:id", checkAuth(Role4.ADMIN, Role4.SUPER_ADMIN), GenreController.deleteGenre);
 router3.get("/", GenreController.getAllGenre);
 router3.get("/:id", GenreController.getGenreById);
 var GenreRoutes = router3;
 
 // src/app/modules/actor/actor.routes.ts
-var import_express4 = require("express");
+import { Router as Router4 } from "express";
 
 // src/app/modules/actor/actor.validation.ts
-var import_zod2 = __toESM(require("zod"));
-var createActorValidation = import_zod2.default.object({
-  name: import_zod2.default.string().min(3, "Actor Name must be 3 character long"),
-  photoUrl: import_zod2.default.string().optional()
+import z2 from "zod";
+var createActorValidation = z2.object({
+  name: z2.string().min(3, "Actor Name must be 3 character long"),
+  photoUrl: z2.string().optional()
 });
-var updateActorValidation = import_zod2.default.object({
-  name: import_zod2.default.string().min(3, "Actor Name must be 3 character long").optional(),
-  photoUrl: import_zod2.default.string().optional()
+var updateActorValidation = z2.object({
+  name: z2.string().min(3, "Actor Name must be 3 character long").optional(),
+  photoUrl: z2.string().optional()
 });
 var ActorValidation = {
   createActorValidation,
@@ -1655,7 +1642,7 @@ var ActorValidation = {
 };
 
 // src/app/modules/actor/actor.routes.ts
-var import_client6 = require("@prisma/client");
+import { Role as Role5 } from "@prisma/client";
 
 // src/app/utils/QueryBuilder.ts
 var QueryBuilder = class {
@@ -2155,7 +2142,7 @@ var ActorService = {
 };
 
 // src/app/modules/actor/actor.controller.ts
-var import_http_status10 = __toESM(require("http-status"));
+import status10 from "http-status";
 var createActor2 = catchAsync(async (req, res) => {
   let payload = req.body;
   if (req.file) {
@@ -2163,7 +2150,7 @@ var createActor2 = catchAsync(async (req, res) => {
   }
   const result = await ActorService.createActor(payload);
   sendResponse(res, {
-    httpStatusCode: import_http_status10.default.CREATED,
+    httpStatusCode: status10.CREATED,
     success: true,
     message: "Actor created successfully",
     data: result
@@ -2177,7 +2164,7 @@ var updateActor2 = catchAsync(async (req, res) => {
   }
   const result = await ActorService.updateActor(id, payload);
   sendResponse(res, {
-    httpStatusCode: import_http_status10.default.OK,
+    httpStatusCode: status10.OK,
     success: true,
     message: "Actor updated successfully",
     data: result
@@ -2187,7 +2174,7 @@ var deleteActor2 = catchAsync(async (req, res) => {
   const id = req.params.id;
   const result = await ActorService.deleteActor(id);
   sendResponse(res, {
-    httpStatusCode: import_http_status10.default.OK,
+    httpStatusCode: status10.OK,
     success: true,
     message: "Actor deleted successfully",
     data: result
@@ -2196,7 +2183,7 @@ var deleteActor2 = catchAsync(async (req, res) => {
 var getAllActor2 = catchAsync(async (req, res) => {
   const result = await ActorService.getAllActor(req.query);
   sendResponse(res, {
-    httpStatusCode: import_http_status10.default.OK,
+    httpStatusCode: status10.OK,
     success: true,
     message: "Actor fetched successfully",
     data: result
@@ -2206,7 +2193,7 @@ var getActorById2 = catchAsync(async (req, res) => {
   const id = req.params.id;
   const result = await ActorService.getActorById(id);
   sendResponse(res, {
-    httpStatusCode: import_http_status10.default.OK,
+    httpStatusCode: status10.OK,
     success: true,
     message: "Actor fetched successfully",
     data: result
@@ -2221,22 +2208,22 @@ var ActorController = {
 };
 
 // src/app/modules/actor/actor.routes.ts
-var router4 = (0, import_express4.Router)();
-router4.post("/create-actor", checkAuth(import_client6.Role.ADMIN, import_client6.Role.SUPER_ADMIN), multerUpload.single("photoUrl"), validateRequest(ActorValidation.createActorValidation), ActorController.createActor);
-router4.patch("/update-actor/:id", checkAuth(import_client6.Role.ADMIN, import_client6.Role.SUPER_ADMIN), multerUpload.single("photoUrl"), validateRequest(ActorValidation.updateActorValidation), ActorController.updateActor);
-router4.delete("/delete-actor/:id", checkAuth(import_client6.Role.ADMIN, import_client6.Role.SUPER_ADMIN), ActorController.deleteActor);
+var router4 = Router4();
+router4.post("/create-actor", checkAuth(Role5.ADMIN, Role5.SUPER_ADMIN), multerUpload.single("photoUrl"), validateRequest(ActorValidation.createActorValidation), ActorController.createActor);
+router4.patch("/update-actor/:id", checkAuth(Role5.ADMIN, Role5.SUPER_ADMIN), multerUpload.single("photoUrl"), validateRequest(ActorValidation.updateActorValidation), ActorController.updateActor);
+router4.delete("/delete-actor/:id", checkAuth(Role5.ADMIN, Role5.SUPER_ADMIN), ActorController.deleteActor);
 router4.get("/", ActorController.getAllActor);
 router4.get("/:id", ActorController.getActorById);
 var ActorRoutes = router4;
 
 // src/app/modules/media/media.routes.ts
-var import_express5 = require("express");
+import { Router as Router5 } from "express";
 
 // src/app/modules/media/media.controller.ts
-var import_http_status12 = __toESM(require("http-status"));
+import status12 from "http-status";
 
 // src/app/modules/media/media.services.ts
-var import_http_status11 = __toESM(require("http-status"));
+import status11 from "http-status";
 
 // src/app/modules/media/media.constant.ts
 var mediaSearchableFields = [
@@ -2289,7 +2276,7 @@ var createMedia = async (payload) => {
         where: { id: { in: actorIds } }
       });
       if (existingActors.length !== actorIds.length) {
-        throw new AppError_default(import_http_status11.default.BAD_REQUEST, "One or more Actor IDs do not exist.");
+        throw new AppError_default(status11.BAD_REQUEST, "One or more Actor IDs do not exist.");
       }
       castDataToInsert = actorIds.map((id) => ({ actorId: id }));
     }
@@ -2298,7 +2285,7 @@ var createMedia = async (payload) => {
         where: { id: { in: genreIds } }
       });
       if (existingGenres.length !== genreIds.length) {
-        throw new AppError_default(import_http_status11.default.BAD_REQUEST, "One or more Genre IDs do not exist.");
+        throw new AppError_default(status11.BAD_REQUEST, "One or more Genre IDs do not exist.");
       }
       genreDataToInsert = genreIds.map((id) => ({ genreId: id }));
     }
@@ -2338,12 +2325,12 @@ var updateMedia = async (id, payload) => {
     }
   });
   if (!isTheMovieExist) {
-    throw new AppError_default(import_http_status11.default.NOT_FOUND, "Media not found.");
+    throw new AppError_default(status11.NOT_FOUND, "Media not found.");
   }
   const result = await prisma.$transaction(async (tx) => {
     const isMediaExist = await tx.media.findUnique({ where: { id } });
     if (!isMediaExist) {
-      throw new AppError_default(import_http_status11.default.NOT_FOUND, "Media not found.");
+      throw new AppError_default(status11.NOT_FOUND, "Media not found.");
     }
     if (actorIds) {
       if (actorIds.length > 0) {
@@ -2351,7 +2338,7 @@ var updateMedia = async (id, payload) => {
           where: { id: { in: actorIds } }
         });
         if (existingActors.length !== actorIds.length) {
-          throw new AppError_default(import_http_status11.default.BAD_REQUEST, "One or more Actor IDs do not exist.");
+          throw new AppError_default(status11.BAD_REQUEST, "One or more Actor IDs do not exist.");
         }
       }
       await tx.mediaCast.deleteMany({ where: { mediaId: id } });
@@ -2362,7 +2349,7 @@ var updateMedia = async (id, payload) => {
           where: { id: { in: genreIds } }
         });
         if (existingGenres.length !== genreIds.length) {
-          throw new AppError_default(import_http_status11.default.BAD_REQUEST, "One or more Genre IDs do not exist.");
+          throw new AppError_default(status11.BAD_REQUEST, "One or more Genre IDs do not exist.");
         }
       }
       await tx.mediaGenre.deleteMany({ where: { mediaId: id } });
@@ -2434,14 +2421,14 @@ var getMediaById = async (id) => {
     }
   });
   if (!result) {
-    throw new AppError_default(import_http_status11.default.NOT_FOUND, "Media not found");
+    throw new AppError_default(status11.NOT_FOUND, "Media not found");
   }
   return result;
 };
 var deleteMedia = async (id) => {
   const isMediaExist = await prisma.media.findUnique({ where: { id } });
   if (!isMediaExist) {
-    throw new AppError_default(import_http_status11.default.NOT_FOUND, "Media not found");
+    throw new AppError_default(status11.NOT_FOUND, "Media not found");
   }
   const result = await prisma.media.delete({
     where: { id }
@@ -2481,7 +2468,7 @@ var createMedia2 = catchAsync(async (req, res) => {
   }
   const result = await MediaService.createMedia(payload);
   sendResponse(res, {
-    httpStatusCode: import_http_status12.default.CREATED,
+    httpStatusCode: status12.CREATED,
     success: true,
     message: "Media created successfully",
     data: result
@@ -2490,7 +2477,7 @@ var createMedia2 = catchAsync(async (req, res) => {
 var getAllMedia2 = catchAsync(async (req, res) => {
   const result = await MediaService.getAllMedia(req.query);
   sendResponse(res, {
-    httpStatusCode: import_http_status12.default.OK,
+    httpStatusCode: status12.OK,
     success: true,
     message: "All media retrieved successfully",
     data: result
@@ -2500,7 +2487,7 @@ var getMediaById2 = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await MediaService.getMediaById(id);
   sendResponse(res, {
-    httpStatusCode: import_http_status12.default.OK,
+    httpStatusCode: status12.OK,
     success: true,
     message: "Media retrieved successfully",
     data: result
@@ -2531,7 +2518,7 @@ var updateMedia2 = catchAsync(async (req, res) => {
   }
   const result = await MediaService.updateMedia(id, payload);
   sendResponse(res, {
-    httpStatusCode: import_http_status12.default.OK,
+    httpStatusCode: status12.OK,
     success: true,
     message: "Media updated successfully",
     data: result
@@ -2541,7 +2528,7 @@ var deleteMedia2 = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await MediaService.deleteMedia(id);
   sendResponse(res, {
-    httpStatusCode: import_http_status12.default.OK,
+    httpStatusCode: status12.OK,
     success: true,
     message: "Media deleted successfully",
     data: result
@@ -2557,11 +2544,11 @@ var MediaController = {
 };
 
 // src/app/modules/media/media.routes.ts
-var import_client7 = require("@prisma/client");
-var router5 = (0, import_express5.Router)();
+import { Role as Role6 } from "@prisma/client";
+var router5 = Router5();
 router5.post(
   "/create-media",
-  checkAuth(import_client7.Role.ADMIN, import_client7.Role.SUPER_ADMIN),
+  checkAuth(Role6.ADMIN, Role6.SUPER_ADMIN),
   multerUpload.fields([
     { name: "poster", maxCount: 1 },
     // Expect 1 file named "poster"
@@ -2574,17 +2561,17 @@ router5.get("/", MediaController.getAllMedia);
 router5.get("/:id", MediaController.getMediaById);
 router5.patch(
   "/update-media/:id",
-  checkAuth(import_client7.Role.ADMIN, import_client7.Role.SUPER_ADMIN),
+  checkAuth(Role6.ADMIN, Role6.SUPER_ADMIN),
   multerUpload.fields([
     { name: "poster", maxCount: 1 },
     { name: "backdrop", maxCount: 1 }
   ]),
   MediaController.updateMedia
 );
-router5.delete("/delete-media/:id", checkAuth(import_client7.Role.ADMIN, import_client7.Role.SUPER_ADMIN), MediaController.deleteMedia);
+router5.delete("/delete-media/:id", checkAuth(Role6.ADMIN, Role6.SUPER_ADMIN), MediaController.deleteMedia);
 router5.patch(
   "/update-media/:id",
-  checkAuth(import_client7.Role.ADMIN, import_client7.Role.SUPER_ADMIN),
+  checkAuth(Role6.ADMIN, Role6.SUPER_ADMIN),
   multerUpload.fields([
     { name: "poster", maxCount: 1 },
     // Expect 1 file named "poster"
@@ -2596,7 +2583,7 @@ router5.patch(
 var MediaRoutes = router5;
 
 // src/app/modules/tags/tags.routes.ts
-var import_express6 = require("express");
+import { Router as Router6 } from "express";
 
 // src/app/modules/tags/tags.services.ts
 var getAllTags = async () => {
@@ -2608,11 +2595,11 @@ var TagService = {
 };
 
 // src/app/modules/tags/tags.controller.ts
-var import_http_status13 = __toESM(require("http-status"));
+import status13 from "http-status";
 var getAllTags2 = catchAsync(async (req, res) => {
   const result = await TagService.getAllTags();
   sendResponse(res, {
-    httpStatusCode: import_http_status13.default.OK,
+    httpStatusCode: status13.OK,
     message: "Tags fetched successfully",
     success: true,
     data: result
@@ -2623,16 +2610,16 @@ var TagController = {
 };
 
 // src/app/modules/tags/tags.routes.ts
-var router6 = (0, import_express6.Router)();
+var router6 = Router6();
 router6.get("/", TagController.getAllTags);
 var TagRoutes = router6;
 
 // src/app/modules/reviews/reviews.routes.ts
-var import_express7 = require("express");
-var import_client8 = require("@prisma/client");
+import { Router as Router7 } from "express";
+import { Role as Role7 } from "@prisma/client";
 
 // src/app/modules/reviews/reviews.service.ts
-var import_http_status14 = __toESM(require("http-status"));
+import status14 from "http-status";
 
 // src/app/helperFunciton/recalculateAvgReview.ts
 var updateMediaAggregateStats = async (mediaId, tx = prisma) => {
@@ -2683,13 +2670,13 @@ var createReview = async (payload, mediaId, userId) => {
     where: { id: userId }
   });
   if (!isUserExist) {
-    throw new AppError_default(import_http_status14.default.NOT_FOUND, "User not found");
+    throw new AppError_default(status14.NOT_FOUND, "User not found");
   }
   const isMediaExist = await prisma.media.findUnique({
     where: { id: mediaId }
   });
   if (!isMediaExist) {
-    throw new AppError_default(import_http_status14.default.NOT_FOUND, "Media not found");
+    throw new AppError_default(status14.NOT_FOUND, "Media not found");
   }
   const existingReview = await prisma.review.findUnique({
     where: {
@@ -2700,7 +2687,7 @@ var createReview = async (payload, mediaId, userId) => {
     }
   });
   if (existingReview) {
-    throw new AppError_default(import_http_status14.default.CONFLICT, "You have already reviewed this media.");
+    throw new AppError_default(status14.CONFLICT, "You have already reviewed this media.");
   }
   const result = await prisma.$transaction(async (tx) => {
     if (tags && tags.length > 0) {
@@ -2708,7 +2695,7 @@ var createReview = async (payload, mediaId, userId) => {
         where: { id: { in: tags } }
       });
       if (existingTags.length !== tags.length) {
-        throw new AppError_default(import_http_status14.default.BAD_REQUEST, "One or more Tag IDs are invalid.");
+        throw new AppError_default(status14.BAD_REQUEST, "One or more Tag IDs are invalid.");
       }
     }
     const newReview = await tx.review.create({
@@ -2745,13 +2732,13 @@ var updateReview = async (reviewId, userId, payload) => {
     where: { id: reviewId }
   });
   if (!existingReview) {
-    throw new AppError_default(import_http_status14.default.NOT_FOUND, "Review not found.");
+    throw new AppError_default(status14.NOT_FOUND, "Review not found.");
   }
   if (existingReview.userId !== userId) {
-    throw new AppError_default(import_http_status14.default.FORBIDDEN, "You are not authorized to edit this review.");
+    throw new AppError_default(status14.FORBIDDEN, "You are not authorized to edit this review.");
   }
   if (existingReview.status === "PUBLISHED") {
-    throw new AppError_default(import_http_status14.default.BAD_REQUEST, "You cannot edit a published review.");
+    throw new AppError_default(status14.BAD_REQUEST, "You cannot edit a published review.");
   }
   const result = await prisma.$transaction(async (tx) => {
     if (tags && tags.length > 0) {
@@ -2759,7 +2746,7 @@ var updateReview = async (reviewId, userId, payload) => {
         where: { id: { in: tags } }
       });
       if (existingTags.length !== tags.length) {
-        throw new AppError_default(import_http_status14.default.BAD_REQUEST, "One or more Tag IDs are invalid.");
+        throw new AppError_default(status14.BAD_REQUEST, "One or more Tag IDs are invalid.");
       }
     }
     const updatedReview = await tx.review.update({
@@ -2795,7 +2782,7 @@ var getReviewsByMediaId = async (mediaId, userId) => {
     where: { id: mediaId }
   });
   if (!isMediaExist) {
-    throw new AppError_default(import_http_status14.default.NOT_FOUND, "Media not found.");
+    throw new AppError_default(status14.NOT_FOUND, "Media not found.");
   }
   const reviews = await prisma.review.findMany({
     where: {
@@ -2894,7 +2881,7 @@ var deleteReview = async (reviewId) => {
     }
   });
   if (!isReviewExsit) {
-    throw new AppError_default(import_http_status14.default.NOT_FOUND, "Review not found");
+    throw new AppError_default(status14.NOT_FOUND, "Review not found");
   }
   const deleteReview3 = await prisma.review.delete({
     where: {
@@ -2932,14 +2919,14 @@ var ReviewService = {
 };
 
 // src/app/modules/reviews/reviews.controller.ts
-var import_http_status15 = __toESM(require("http-status"));
+import status15 from "http-status";
 var createReview2 = catchAsync(async (req, res) => {
   const mediaId = req.params.id;
   const userId = req.user.userId;
   const payload = req.body;
   const result = await ReviewService.createReview(payload, mediaId, userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status15.default.CREATED,
+    httpStatusCode: status15.CREATED,
     success: true,
     message: "Review created successfully",
     data: result
@@ -2951,7 +2938,7 @@ var updateReview2 = catchAsync(async (req, res) => {
   const payload = req.body;
   const result = await ReviewService.updateReview(reviewId, userId, payload);
   sendResponse(res, {
-    httpStatusCode: import_http_status15.default.OK,
+    httpStatusCode: status15.OK,
     success: true,
     message: "Review updated successfully",
     data: result
@@ -2965,7 +2952,7 @@ var getReviewByMedia = catchAsync(async (req, res) => {
   console.log("EXTRACTED USER ID:", userId);
   const result = await ReviewService.getReviewsByMediaId(mediaId, userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status15.default.OK,
+    httpStatusCode: status15.OK,
     success: true,
     message: "Review retrieved successfully",
     data: result
@@ -2976,7 +2963,7 @@ var updateReviewStatus2 = catchAsync(async (req, res) => {
   const reviewStatus = req.body.status;
   const result = await ReviewService.updateReviewStatus(reviewStatus, reviewId);
   sendResponse(res, {
-    httpStatusCode: import_http_status15.default.OK,
+    httpStatusCode: status15.OK,
     success: true,
     message: "Review status updated successfully",
     data: result
@@ -2985,7 +2972,7 @@ var updateReviewStatus2 = catchAsync(async (req, res) => {
 var getUnPublishedReview2 = catchAsync(async (req, res) => {
   const result = await ReviewService.getUnPublishedReview();
   sendResponse(res, {
-    httpStatusCode: import_http_status15.default.OK,
+    httpStatusCode: status15.OK,
     success: true,
     message: "Unpublished reviews retrieved successfully",
     data: result
@@ -2996,7 +2983,7 @@ var isUserHasReview2 = catchAsync(async (req, res) => {
   const mediaId = req.params.id;
   const result = await ReviewService.isUserHasReview(mediaId, user.userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status15.default.OK,
+    httpStatusCode: status15.OK,
     success: true,
     message: "User has review status checked successfully",
     data: result
@@ -3006,7 +2993,7 @@ var deleteReview2 = catchAsync(async (req, res) => {
   const reviewId = req.params.id;
   const result = await ReviewService.deleteReview(reviewId);
   sendResponse(res, {
-    httpStatusCode: import_http_status15.default.OK,
+    httpStatusCode: status15.OK,
     success: true,
     message: "Admin has deleted the review",
     data: result
@@ -3015,7 +3002,7 @@ var deleteReview2 = catchAsync(async (req, res) => {
 var getPublishedReview2 = catchAsync(async (req, res) => {
   const result = await ReviewService.getPublishedReview();
   sendResponse(res, {
-    httpStatusCode: import_http_status15.default.OK,
+    httpStatusCode: status15.OK,
     success: true,
     message: "Published Review fetched",
     data: result
@@ -3033,32 +3020,32 @@ var ReviewController = {
 };
 
 // src/app/modules/reviews/reviews.validation.ts
-var import_zod3 = __toESM(require("zod"));
-var CreateReviewValidation = import_zod3.default.object({
-  rating: import_zod3.default.number("Rating must be number").int("Rating must be integer").min(1, "Rating must be at least 1").max(10, "Rating must be at most 10"),
-  content: import_zod3.default.string("Content must be string").min(1, "Content must be at least 1"),
-  tags: import_zod3.default.array(import_zod3.default.string("Tag must be string")).optional(),
-  hasSpoiler: import_zod3.default.boolean("Has spoiler must be boolean").optional()
+import z3 from "zod";
+var CreateReviewValidation = z3.object({
+  rating: z3.number("Rating must be number").int("Rating must be integer").min(1, "Rating must be at least 1").max(10, "Rating must be at most 10"),
+  content: z3.string("Content must be string").min(1, "Content must be at least 1"),
+  tags: z3.array(z3.string("Tag must be string")).optional(),
+  hasSpoiler: z3.boolean("Has spoiler must be boolean").optional()
 });
 var UpdateReviewValidation = CreateReviewValidation.partial();
 
 // src/app/modules/reviews/reviews.routes.ts
-var router7 = (0, import_express7.Router)();
-router7.get("/", checkAuth(import_client8.Role.ADMIN, import_client8.Role.SUPER_ADMIN), ReviewController.getUnPublishedReview);
-router7.get("/published", checkAuth(import_client8.Role.ADMIN, import_client8.Role.SUPER_ADMIN), ReviewController.getPublishedReview);
-router7.get("/checkUserReview/:id", checkAuth(import_client8.Role.ADMIN, import_client8.Role.SUPER_ADMIN, import_client8.Role.USER), ReviewController.isUserHasReview);
-router7.post("/:id", checkAuth(import_client8.Role.USER, import_client8.Role.ADMIN, import_client8.Role.SUPER_ADMIN), validateRequest(CreateReviewValidation), ReviewController.createReview);
-router7.patch("/:id", checkAuth(import_client8.Role.USER, import_client8.Role.ADMIN, import_client8.Role.SUPER_ADMIN), validateRequest(UpdateReviewValidation), ReviewController.updateReview);
-router7.get("/:id", checkAuth(import_client8.Role.USER, import_client8.Role.ADMIN, import_client8.Role.SUPER_ADMIN), ReviewController.getReviewByMedia);
-router7.patch("/status/:id", checkAuth(import_client8.Role.ADMIN, import_client8.Role.SUPER_ADMIN), ReviewController.updateReviewStatus);
-router7.delete("/:id", checkAuth(import_client8.Role.ADMIN, import_client8.Role.SUPER_ADMIN, import_client8.Role.USER), ReviewController.deleteReview);
+var router7 = Router7();
+router7.get("/", checkAuth(Role7.ADMIN, Role7.SUPER_ADMIN), ReviewController.getUnPublishedReview);
+router7.get("/published", checkAuth(Role7.ADMIN, Role7.SUPER_ADMIN), ReviewController.getPublishedReview);
+router7.get("/checkUserReview/:id", checkAuth(Role7.ADMIN, Role7.SUPER_ADMIN, Role7.USER), ReviewController.isUserHasReview);
+router7.post("/:id", checkAuth(Role7.USER, Role7.ADMIN, Role7.SUPER_ADMIN), validateRequest(CreateReviewValidation), ReviewController.createReview);
+router7.patch("/:id", checkAuth(Role7.USER, Role7.ADMIN, Role7.SUPER_ADMIN), validateRequest(UpdateReviewValidation), ReviewController.updateReview);
+router7.get("/:id", checkAuth(Role7.USER, Role7.ADMIN, Role7.SUPER_ADMIN), ReviewController.getReviewByMedia);
+router7.patch("/status/:id", checkAuth(Role7.ADMIN, Role7.SUPER_ADMIN), ReviewController.updateReviewStatus);
+router7.delete("/:id", checkAuth(Role7.ADMIN, Role7.SUPER_ADMIN, Role7.USER), ReviewController.deleteReview);
 var ReviewRoutes = router7;
 
 // src/app/modules/notification/notification.routes.ts
-var import_express8 = require("express");
+import { Router as Router8 } from "express";
 
 // src/app/modules/notification/notification.services.ts
-var import_http_status16 = __toESM(require("http-status"));
+import status16 from "http-status";
 var readNotification = async (userId) => {
   const result = await prisma.notification.updateMany({
     where: {
@@ -3070,7 +3057,7 @@ var readNotification = async (userId) => {
     }
   });
   if (result.count === 0) {
-    throw new AppError_default(import_http_status16.default.BAD_REQUEST, "No unread notifications found");
+    throw new AppError_default(status16.BAD_REQUEST, "No unread notifications found");
   }
 };
 var likeNotification = async (userId, personId, mediaId) => {
@@ -3137,12 +3124,12 @@ var NotificationService = {
 };
 
 // src/app/modules/notification/notification.controller.ts
-var import_http_status17 = __toESM(require("http-status"));
+import status17 from "http-status";
 var readNotification2 = catchAsync(async (req, res) => {
   const userData = req.user;
   const result = await NotificationService.readNotification(userData.userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status17.default.OK,
+    httpStatusCode: status17.OK,
     message: "Notification read successfully",
     success: true,
     data: result
@@ -3152,7 +3139,7 @@ var getAllUserNotification2 = catchAsync(async (req, res) => {
   const userData = req.user;
   const result = await NotificationService.getAllUserNotification(userData.userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status17.default.OK,
+    httpStatusCode: status17.OK,
     message: "Notification retreive successfully",
     success: true,
     data: result
@@ -3164,17 +3151,17 @@ var NotificationController = {
 };
 
 // src/app/modules/notification/notification.routes.ts
-var import_client9 = require("@prisma/client");
-var router8 = (0, import_express8.Router)();
-router8.post("/", checkAuth(import_client9.Role.USER, import_client9.Role.ADMIN, import_client9.Role.SUPER_ADMIN), NotificationController.readNotification);
-router8.get("/", checkAuth(import_client9.Role.USER, import_client9.Role.ADMIN, import_client9.Role.SUPER_ADMIN), NotificationController.getAllUserNotification);
+import { Role as Role8 } from "@prisma/client";
+var router8 = Router8();
+router8.post("/", checkAuth(Role8.USER, Role8.ADMIN, Role8.SUPER_ADMIN), NotificationController.readNotification);
+router8.get("/", checkAuth(Role8.USER, Role8.ADMIN, Role8.SUPER_ADMIN), NotificationController.getAllUserNotification);
 var NotificationRoutes = router8;
 
 // src/app/modules/comment/comment.routes.ts
-var import_express9 = require("express");
+import { Router as Router9 } from "express";
 
 // src/app/modules/comment/comment.controller.ts
-var import_http_status18 = __toESM(require("http-status"));
+import status18 from "http-status";
 
 // src/app/modules/comment/comment.services.ts
 var createComment = async (payload, reviewId, userId) => {
@@ -3225,7 +3212,7 @@ var createComment2 = catchAsync(async (req, res) => {
   const payload = req.body;
   const result = await CommentServices.createComment(payload, reviewId, userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status18.default.CREATED,
+    httpStatusCode: status18.CREATED,
     success: true,
     message: "Comment created successfully",
     data: result
@@ -3235,7 +3222,7 @@ var getAllCommentByReviewId2 = catchAsync(async (req, res) => {
   const reviewId = req.params.id;
   const result = await CommentServices.getAllCommentByReviewId(reviewId);
   sendResponse(res, {
-    httpStatusCode: import_http_status18.default.OK,
+    httpStatusCode: status18.OK,
     message: "Comments fetched successfully",
     success: true,
     data: result
@@ -3247,25 +3234,25 @@ var CommentController = {
 };
 
 // src/app/modules/comment/comment.routes.ts
-var import_client10 = require("@prisma/client");
+import { Role as Role9 } from "@prisma/client";
 
 // src/app/modules/comment/comment.validation.ts
-var import_zod4 = __toESM(require("zod"));
-var CommentValidation = import_zod4.default.object({
-  content: import_zod4.default.string()
+import z4 from "zod";
+var CommentValidation = z4.object({
+  content: z4.string()
 });
 
 // src/app/modules/comment/comment.routes.ts
-var router9 = (0, import_express9.Router)();
-router9.post("/:id", checkAuth(import_client10.Role.USER), validateRequest(CommentValidation), CommentController.createComment);
+var router9 = Router9();
+router9.post("/:id", checkAuth(Role9.USER), validateRequest(CommentValidation), CommentController.createComment);
 router9.get("/:id", CommentController.getAllCommentByReviewId);
 var CommentRoutes = router9;
 
 // src/app/modules/reviewLike/reviewLike.routes.ts
-var import_express10 = require("express");
+import { Router as Router10 } from "express";
 
 // src/app/modules/reviewLike/reviewLikeServices.ts
-var import_http_status19 = __toESM(require("http-status"));
+import status19 from "http-status";
 var toggleReviewLike = async (reviewId, userId) => {
   const isReviewExist = await prisma.review.findFirst({
     where: {
@@ -3274,7 +3261,7 @@ var toggleReviewLike = async (reviewId, userId) => {
     }
   });
   if (!isReviewExist) {
-    throw new AppError_default(import_http_status19.default.NOT_FOUND, "Review not found or not published.");
+    throw new AppError_default(status19.NOT_FOUND, "Review not found or not published.");
   }
   const existingLike = await prisma.reviewLike.findUnique({
     where: {
@@ -3338,7 +3325,7 @@ var ReviewLikeService = {
 };
 
 // src/app/modules/reviewLike/reviewLike.controller.ts
-var import_http_status20 = __toESM(require("http-status"));
+import status20 from "http-status";
 var toggleReviewLike2 = catchAsync(async (req, res) => {
   const userData = req.user;
   const reviewId = req.params.id;
@@ -3347,7 +3334,7 @@ var toggleReviewLike2 = catchAsync(async (req, res) => {
     userData.userId
   );
   sendResponse(res, {
-    httpStatusCode: import_http_status20.default.CREATED,
+    httpStatusCode: status20.CREATED,
     message: "Action done successfully",
     success: true,
     data: result
@@ -3357,7 +3344,7 @@ var getAllReviewLikeByReviewId2 = catchAsync(async (req, res) => {
   const reviewId = req.params.id;
   const result = await ReviewLikeService.getAllReviewLikeByReviewId(reviewId);
   sendResponse(res, {
-    httpStatusCode: import_http_status20.default.OK,
+    httpStatusCode: status20.OK,
     message: "Review like fetched successfully",
     success: true,
     data: result
@@ -3368,7 +3355,7 @@ var getReviewByUserIdAndReviewId2 = catchAsync(async (req, res) => {
   const userData = req.user;
   const result = await ReviewLikeService.getReviewByUserIdAndReviewId(reviewId, userData.userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status20.default.OK,
+    httpStatusCode: status20.OK,
     message: "Review like fetched successfully",
     success: true,
     data: result
@@ -3381,19 +3368,19 @@ var ReviewLikeController = {
 };
 
 // src/app/modules/reviewLike/reviewLike.routes.ts
-var import_client11 = require("@prisma/client");
-var router10 = (0, import_express10.Router)();
-router10.post("/:id", checkAuth(import_client11.Role.USER, import_client11.Role.ADMIN, import_client11.Role.SUPER_ADMIN), ReviewLikeController.toggleReviewLike);
+import { Role as Role10 } from "@prisma/client";
+var router10 = Router10();
+router10.post("/:id", checkAuth(Role10.USER, Role10.ADMIN, Role10.SUPER_ADMIN), ReviewLikeController.toggleReviewLike);
 router10.get("/:id", ReviewLikeController.getAllReviewLikeByReviewId);
-router10.get("/:id", checkAuth(import_client11.Role.USER, import_client11.Role.ADMIN, import_client11.Role.SUPER_ADMIN), ReviewLikeController.getReviewByUserIdAndReviewId);
+router10.get("/:id", checkAuth(Role10.USER, Role10.ADMIN, Role10.SUPER_ADMIN), ReviewLikeController.getReviewByUserIdAndReviewId);
 var ReviewLikeRoutes = router10;
 
 // src/app/modules/watchList/watchList.routes.ts
-var import_express11 = require("express");
-var import_client12 = require("@prisma/client");
+import { Router as Router11 } from "express";
+import { Role as Role11 } from "@prisma/client";
 
 // src/app/modules/watchList/watchList.service.ts
-var import_http_status21 = __toESM(require("http-status"));
+import status21 from "http-status";
 var toggleWatchList = async (mediaId, userId) => {
   const isTheMediaExist = await prisma.media.findFirst({
     where: {
@@ -3402,7 +3389,7 @@ var toggleWatchList = async (mediaId, userId) => {
     }
   });
   if (!isTheMediaExist) {
-    throw new AppError_default(import_http_status21.default.NOT_FOUND, "media not found");
+    throw new AppError_default(status21.NOT_FOUND, "media not found");
   }
   ;
   const watchListItemExist = await prisma.watchlistItem.findUnique({
@@ -3461,10 +3448,10 @@ var isMovieOnTheWatchList = async (movieId, userId) => {
     }
   });
   if (!isTheMovieExist) {
-    throw new AppError_default(import_http_status21.default.NOT_FOUND, "Movie not exist");
+    throw new AppError_default(status21.NOT_FOUND, "Movie not exist");
   }
   if (!isTheUserExist) {
-    throw new AppError_default(import_http_status21.default.NOT_FOUND, "user not found");
+    throw new AppError_default(status21.NOT_FOUND, "user not found");
   }
   const result = await prisma.watchlistItem.findFirst({
     where: {
@@ -3484,13 +3471,13 @@ var WatchListService = {
 };
 
 // src/app/modules/watchList/watchList.controller.ts
-var import_http_status22 = __toESM(require("http-status"));
+import status22 from "http-status";
 var toggleWatchList2 = catchAsync(async (req, res) => {
   const mediaId = req.params.id;
   const userData = req.user;
   const result = await WatchListService.toggleWatchList(mediaId, userData.userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status22.default.CREATED,
+    httpStatusCode: status22.CREATED,
     message: "Action done successfully",
     success: true,
     data: result
@@ -3500,7 +3487,7 @@ var getUserWatchList2 = catchAsync(async (req, res) => {
   const userId = req.user.userId;
   const result = await WatchListService.getUserWatchList(userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status22.default.OK,
+    httpStatusCode: status22.OK,
     message: "Watch list retrieved successfully",
     success: true,
     data: result
@@ -3511,7 +3498,7 @@ var isMovieOnTheWatchList2 = catchAsync(async (req, res) => {
   const movieId = req.params.id;
   const result = await WatchListService.isMovieOnTheWatchList(movieId, user.userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status22.default.OK,
+    httpStatusCode: status22.OK,
     message: "List checked successfully",
     success: true,
     data: result
@@ -3524,18 +3511,18 @@ var WatchListController = {
 };
 
 // src/app/modules/watchList/watchList.routes.ts
-var router11 = (0, import_express11.Router)();
-router11.post("/:id", checkAuth(import_client12.Role.ADMIN, import_client12.Role.SUPER_ADMIN, import_client12.Role.USER), WatchListController.toggleWatchList);
-router11.get("/", checkAuth(import_client12.Role.ADMIN, import_client12.Role.SUPER_ADMIN, import_client12.Role.USER), WatchListController.getUserWatchList);
-router11.get("/checkWatchList/:id", checkAuth(import_client12.Role.ADMIN, import_client12.Role.SUPER_ADMIN, import_client12.Role.USER), WatchListController.isMovieOnTheWatchList);
+var router11 = Router11();
+router11.post("/:id", checkAuth(Role11.ADMIN, Role11.SUPER_ADMIN, Role11.USER), WatchListController.toggleWatchList);
+router11.get("/", checkAuth(Role11.ADMIN, Role11.SUPER_ADMIN, Role11.USER), WatchListController.getUserWatchList);
+router11.get("/checkWatchList/:id", checkAuth(Role11.ADMIN, Role11.SUPER_ADMIN, Role11.USER), WatchListController.isMovieOnTheWatchList);
 var WatchListRoutes = router11;
 
 // src/app/modules/adminStats/adminStats.routes.ts
-var import_express12 = __toESM(require("express"));
-var import_client14 = require("@prisma/client");
+import express from "express";
+import { Role as Role12 } from "@prisma/client";
 
 // src/app/modules/adminStats/adminStats.service.ts
-var import_client13 = require("@prisma/client");
+import { ReviewStatus, MediaStatus, PaymentStatus, SubscriptionStatus } from "@prisma/client";
 var getDashboardAnalytics = async () => {
   const [
     totalUsers,
@@ -3547,22 +3534,22 @@ var getDashboardAnalytics = async () => {
   ] = await Promise.all([
     prisma.user.count(),
     // Total registered users
-    prisma.media.count({ where: { type: "MOVIE", status: import_client13.MediaStatus.PUBLISHED } }),
-    prisma.media.count({ where: { type: "SERIES", status: import_client13.MediaStatus.PUBLISHED } }),
+    prisma.media.count({ where: { type: "MOVIE", status: MediaStatus.PUBLISHED } }),
+    prisma.media.count({ where: { type: "SERIES", status: MediaStatus.PUBLISHED } }),
     // Assuming your Review model has a status field for admin approval
-    prisma.review.count({ where: { status: import_client13.ReviewStatus.PENDING } }),
+    prisma.review.count({ where: { status: ReviewStatus.PENDING } }),
     // 🏆 PRO PORTFOLIO MOVE: Calculate total money made
     prisma.purchase.aggregate({
       _sum: { amount: true },
-      where: { paymentStatus: import_client13.PaymentStatus.COMPLETED }
+      where: { paymentStatus: PaymentStatus.COMPLETED }
     }),
     // Count active subscriptions to calculate subscription revenue ($75 each)
     prisma.subscription.count({
-      where: { status: import_client13.SubscriptionStatus.ACTIVE }
+      where: { status: SubscriptionStatus.ACTIVE }
     })
   ]);
   const recentPendingReviews = await prisma.review.findMany({
-    where: { status: import_client13.ReviewStatus.PENDING },
+    where: { status: ReviewStatus.PENDING },
     take: 10,
     // Just get the latest 10 for the dashboard preview
     orderBy: { createdAt: "desc" },
@@ -3572,7 +3559,7 @@ var getDashboardAnalytics = async () => {
     }
   });
   const topRatedMedia = await prisma.media.findMany({
-    where: { status: import_client13.MediaStatus.PUBLISHED },
+    where: { status: MediaStatus.PUBLISHED },
     take: 5,
     orderBy: { avgRating: "desc" },
     // Uses the field we fixed earlier!
@@ -3601,11 +3588,11 @@ var AdminService = {
 };
 
 // src/app/modules/adminStats/adminStats.controller.ts
-var import_http_status23 = __toESM(require("http-status"));
+import status23 from "http-status";
 var getDashboardAnalytics2 = catchAsync(async (req, res) => {
   const result = await AdminService.getDashboardAnalytics();
   sendResponse(res, {
-    httpStatusCode: import_http_status23.default.OK,
+    httpStatusCode: status23.OK,
     success: true,
     message: "Admin dashboard analytics retrieved successfully",
     data: result
@@ -3616,17 +3603,17 @@ var AdminController = {
 };
 
 // src/app/modules/adminStats/adminStats.routes.ts
-var router12 = import_express12.default.Router();
+var router12 = express.Router();
 router12.get(
   "/analytics",
-  checkAuth(import_client14.Role.ADMIN, import_client14.Role.SUPER_ADMIN),
+  checkAuth(Role12.ADMIN, Role12.SUPER_ADMIN),
   // Your JWT middleware verifying the role
   AdminController.getDashboardAnalytics
 );
 var AdminRoutes = router12;
 
 // src/app/routes/index.ts
-var router13 = (0, import_express13.Router)();
+var router13 = Router12();
 router13.use("/auth", AuthRoutes);
 router13.use("/user", UserRoutes);
 router13.use("/genre", GenreRoutes);
@@ -3642,14 +3629,14 @@ router13.use("/admin", AdminRoutes);
 var IndexRoutes = router13;
 
 // src/app/middlewares/globalErrorhandler.ts
-var import_http_status26 = __toESM(require("http-status"));
-var import_zod5 = __toESM(require("zod"));
-var import_client15 = require("@prisma/client");
+import status26 from "http-status";
+import z5 from "zod";
+import { Prisma } from "@prisma/client";
 
 // src/errorHelpers/handleZodErrors.ts
-var import_http_status24 = __toESM(require("http-status"));
+import status24 from "http-status";
 var handleZodError = (err) => {
-  const statusCode = import_http_status24.default.BAD_REQUEST;
+  const statusCode = status24.BAD_REQUEST;
   const message = "Zod Validation Error";
   let errorSources = [];
   err.issues.forEach((issue) => {
@@ -3667,42 +3654,42 @@ var handleZodError = (err) => {
 };
 
 // src/errorHelpers/handlePrismaErros.ts
-var import_http_status25 = __toESM(require("http-status"));
+import status25 from "http-status";
 var getStatusCodeFromPrismaError = (errorCode) => {
   if (errorCode === "P2002") {
-    return import_http_status25.default.CONFLICT;
+    return status25.CONFLICT;
   }
   if (["P2025", "P2001", "P2015", "P2018"].includes(errorCode)) {
-    return import_http_status25.default.NOT_FOUND;
+    return status25.NOT_FOUND;
   }
   if (["P1000", "P6002"].includes(errorCode)) {
-    return import_http_status25.default.UNAUTHORIZED;
+    return status25.UNAUTHORIZED;
   }
   if (["P1010", "P6010"].includes(errorCode)) {
-    return import_http_status25.default.FORBIDDEN;
+    return status25.FORBIDDEN;
   }
   if (errorCode === "P6003") {
-    return import_http_status25.default.PAYMENT_REQUIRED;
+    return status25.PAYMENT_REQUIRED;
   }
   if (["P1008", "P2004", "P6004"].includes(errorCode)) {
-    return import_http_status25.default.GATEWAY_TIMEOUT;
+    return status25.GATEWAY_TIMEOUT;
   }
   if (errorCode === "P5011") {
-    return import_http_status25.default.TOO_MANY_REQUESTS;
+    return status25.TOO_MANY_REQUESTS;
   }
   if (errorCode === "P6009") {
     return 413;
   }
   if (errorCode.startsWith("P1") || ["P2024", "P2037", "P6008"].includes(errorCode)) {
-    return import_http_status25.default.SERVICE_UNAVAILABLE;
+    return status25.SERVICE_UNAVAILABLE;
   }
   if (errorCode.startsWith("P2")) {
-    return import_http_status25.default.BAD_REQUEST;
+    return status25.BAD_REQUEST;
   }
   if (errorCode.startsWith("P3") || errorCode.startsWith("P4")) {
-    return import_http_status25.default.INTERNAL_SERVER_ERROR;
+    return status25.INTERNAL_SERVER_ERROR;
   }
-  return import_http_status25.default.INTERNAL_SERVER_ERROR;
+  return status25.INTERNAL_SERVER_ERROR;
 };
 var formatErrorMeta = (meta) => {
   if (!meta) return "";
@@ -3772,7 +3759,7 @@ var handlePrismaClientUnknownError = (error) => {
   ];
   return {
     success: false,
-    statusCode: import_http_status25.default.INTERNAL_SERVER_ERROR,
+    statusCode: status25.INTERNAL_SERVER_ERROR,
     message: `Prisma Client Unknown Request Error: ${mainMessage}`,
     errorSources
   };
@@ -3793,13 +3780,13 @@ var handlePrismaClientValidationError = (error) => {
   });
   return {
     success: false,
-    statusCode: import_http_status25.default.BAD_REQUEST,
+    statusCode: status25.BAD_REQUEST,
     message: `Prisma Client Validation Error: ${mainMessage}`,
     errorSources
   };
 };
 var handlerPrismaClientInitializationError = (error) => {
-  const statusCode = error.errorCode ? getStatusCodeFromPrismaError(error.errorCode) : import_http_status25.default.SERVICE_UNAVAILABLE;
+  const statusCode = error.errorCode ? getStatusCodeFromPrismaError(error.errorCode) : status25.SERVICE_UNAVAILABLE;
   const cleanMessage = error.message;
   cleanMessage.replace(/Invalid `.*?` invocation:?\s*/i, "");
   const lines = cleanMessage.split("\n").filter((line) => line.trim());
@@ -3824,7 +3811,7 @@ var handlerPrismaClientRustPanicError = () => {
   }];
   return {
     success: false,
-    statusCode: import_http_status25.default.INTERNAL_SERVER_ERROR,
+    statusCode: status25.INTERNAL_SERVER_ERROR,
     message: "Prisma Client Rust Panic Error: The database engine crashed due to a fatal error.",
     errorSources
   };
@@ -3880,40 +3867,40 @@ var globalErrorHandler = async (err, req, res, next) => {
   }
   await deleteUploadedFilesFromGlobalErrorHandler(req);
   let errorSources = [];
-  let statusCode = import_http_status26.default.INTERNAL_SERVER_ERROR;
+  let statusCode = status26.INTERNAL_SERVER_ERROR;
   let message = "Internal Server Error";
   let stack = void 0;
-  if (err instanceof import_client15.Prisma.PrismaClientKnownRequestError) {
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
     const simplifiedError = handlePrismaClientKnownRequestError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = [...simplifiedError.errorSources];
     stack = err.stack;
-  } else if (err instanceof import_client15.Prisma.PrismaClientUnknownRequestError) {
+  } else if (err instanceof Prisma.PrismaClientUnknownRequestError) {
     const simplifiedError = handlePrismaClientUnknownError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = [...simplifiedError.errorSources];
     stack = err.stack;
-  } else if (err instanceof import_client15.Prisma.PrismaClientValidationError) {
+  } else if (err instanceof Prisma.PrismaClientValidationError) {
     const simplifiedError = handlePrismaClientValidationError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = [...simplifiedError.errorSources];
     stack = err.stack;
-  } else if (err instanceof import_client15.Prisma.PrismaClientRustPanicError) {
+  } else if (err instanceof Prisma.PrismaClientRustPanicError) {
     const simplifiedError = handlerPrismaClientRustPanicError();
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = [...simplifiedError.errorSources];
     stack = err.stack;
-  } else if (err instanceof import_client15.Prisma.PrismaClientInitializationError) {
+  } else if (err instanceof Prisma.PrismaClientInitializationError) {
     const simplifiedError = handlerPrismaClientInitializationError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
     errorSources = [...simplifiedError.errorSources];
     stack = err.stack;
-  } else if (err instanceof import_zod5.default.ZodError) {
+  } else if (err instanceof z5.ZodError) {
     const simplifiedError = handleZodError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
@@ -3930,7 +3917,7 @@ var globalErrorHandler = async (err, req, res, next) => {
       }
     ];
   } else if (err instanceof Error) {
-    statusCode = import_http_status26.default.INTERNAL_SERVER_ERROR;
+    statusCode = status26.INTERNAL_SERVER_ERROR;
     message = err.message;
     stack = err.stack;
     errorSources = [
@@ -3951,25 +3938,29 @@ var globalErrorHandler = async (err, req, res, next) => {
 };
 
 // src/app/middlewares/notFountRoutes.ts
-var import_http_status27 = __toESM(require("http-status"));
+import status27 from "http-status";
 var notFount = (req, res) => {
   sendResponse(res, {
-    httpStatusCode: import_http_status27.default.NOT_FOUND,
+    httpStatusCode: status27.NOT_FOUND,
     success: false,
     message: `Route ${req.originalUrl} not found`
   });
 };
 
 // src/app/modules/purchase/payment.routes.ts
-var import_express14 = __toESM(require("express"));
+import express2 from "express";
 
 // src/app/config/stripe.config.ts
-var import_stripe = __toESM(require("stripe"));
-var stripe = new import_stripe.default(config_default.STRIPE_SECRET_KEY);
+import Stripe from "stripe";
+var stripe = new Stripe(config_default.STRIPE_SECRET_KEY);
 
 // src/app/modules/purchase/purchase.service.ts
-var import_client16 = require("@prisma/client");
-var import_http_status28 = __toESM(require("http-status"));
+import {
+  PaymentStatus as PaymentStatus2,
+  SubscriptionStatus as SubscriptionStatus2,
+  PurchaseType
+} from "@prisma/client";
+import status28 from "http-status";
 var handleStripeWebhookEvent = async (event) => {
   switch (event.type) {
     case "checkout.session.completed": {
@@ -3985,18 +3976,18 @@ var handleStripeWebhookEvent = async (event) => {
           if (!purchase) return { message: "Purchase not found" };
           let accessTimeStartedAt = null;
           let accessExpiresAt = null;
-          if (purchase.type === import_client16.PurchaseType.RENTAL) {
+          if (purchase.type === PurchaseType.RENTAL) {
             accessTimeStartedAt = /* @__PURE__ */ new Date();
             accessExpiresAt = /* @__PURE__ */ new Date();
             accessExpiresAt.setHours(accessExpiresAt.getHours() + 48);
-          } else if (purchase.type === import_client16.PurchaseType.ONE_TIME_BUY) {
+          } else if (purchase.type === PurchaseType.ONE_TIME_BUY) {
             accessTimeStartedAt = /* @__PURE__ */ new Date();
             accessExpiresAt = null;
           }
           await prisma.purchase.update({
             where: { id: dbId },
             data: {
-              paymentStatus: import_client16.PaymentStatus.COMPLETED,
+              paymentStatus: PaymentStatus2.COMPLETED,
               providerTxnId: session.payment_intent,
               accessTimeStartedAt,
               accessExpiresAt,
@@ -4007,7 +3998,7 @@ var handleStripeWebhookEvent = async (event) => {
           await prisma.subscription.update({
             where: { id: dbId },
             data: {
-              status: import_client16.SubscriptionStatus.ACTIVE,
+              status: SubscriptionStatus2.ACTIVE,
               providerSubId: session.subscription,
               stripeCustomerId: session.customer
             }
@@ -4029,7 +4020,7 @@ var handleStripeWebhookEvent = async (event) => {
       await prisma.subscription.updateMany({
         where: { providerSubId: subscription.id },
         data: {
-          status: import_client16.SubscriptionStatus.CANCELLED,
+          status: SubscriptionStatus2.CANCELLED,
           cancelAtPeriodEnd: false
         }
       });
@@ -4044,7 +4035,7 @@ var handleStripeWebhookEvent = async (event) => {
         await prisma.subscription.updateMany({
           where: { providerSubId: stripeSubId },
           data: {
-            status: import_client16.SubscriptionStatus.ACTIVE,
+            status: SubscriptionStatus2.ACTIVE,
             currentPeriodStart: periodStart,
             // 🟢 Now this will be Today
             currentPeriodEnd: periodEnd,
@@ -4074,19 +4065,19 @@ var createCheckoutSession = async (userId, mediaId, type) => {
       where: {
         userId,
         mediaId,
-        paymentStatus: import_client16.PaymentStatus.COMPLETED
+        paymentStatus: PaymentStatus2.COMPLETED
       }
     });
-    const ownsMovie = existingPurchases.some((p) => p.type === import_client16.PurchaseType.ONE_TIME_BUY);
+    const ownsMovie = existingPurchases.some((p) => p.type === PurchaseType.ONE_TIME_BUY);
     if (ownsMovie) {
-      throw new AppError_default(import_http_status28.default.CONFLICT, "You already own this title permanently.");
+      throw new AppError_default(status28.CONFLICT, "You already own this title permanently.");
     }
     if (type === "RENTAL") {
       const hasActiveRental = existingPurchases.some(
-        (p) => p.type === import_client16.PurchaseType.RENTAL && p.accessExpiresAt && p.accessExpiresAt > now
+        (p) => p.type === PurchaseType.RENTAL && p.accessExpiresAt && p.accessExpiresAt > now
       );
       if (hasActiveRental) {
-        throw new AppError_default(import_http_status28.default.CONFLICT, "You already have an active rental for this title.");
+        throw new AppError_default(status28.CONFLICT, "You already have an active rental for this title.");
       }
     }
     const movie = await prisma.media.findUniqueOrThrow({
@@ -4100,7 +4091,7 @@ var createCheckoutSession = async (userId, mediaId, type) => {
       data: {
         userId,
         mediaId,
-        type: type === "RENTAL" ? import_client16.PurchaseType.RENTAL : import_client16.PurchaseType.ONE_TIME_BUY,
+        type: type === "RENTAL" ? PurchaseType.RENTAL : PurchaseType.ONE_TIME_BUY,
         amount: rawPrice
       }
     });
@@ -4109,15 +4100,15 @@ var createCheckoutSession = async (userId, mediaId, type) => {
     const existingSubscription = await prisma.subscription.findUnique({
       where: { userId }
     });
-    if (existingSubscription && existingSubscription.status === import_client16.SubscriptionStatus.ACTIVE && existingSubscription.currentPeriodEnd > now) {
-      throw new AppError_default(import_http_status28.default.CONFLICT, "You already have an active premium subscription.");
+    if (existingSubscription && existingSubscription.status === SubscriptionStatus2.ACTIVE && existingSubscription.currentPeriodEnd > now) {
+      throw new AppError_default(status28.CONFLICT, "You already have an active premium subscription.");
     }
     unitAmount = 7500;
     name = "Premium Monthly Subscription";
     mode = "subscription";
     const sub = await prisma.subscription.upsert({
       where: { userId },
-      update: { status: import_client16.SubscriptionStatus.PENDING },
+      update: { status: SubscriptionStatus2.PENDING },
       create: {
         userId,
         currentPeriodStart: now,
@@ -4156,7 +4147,7 @@ var cancelSubscription = async (userId) => {
   if (!subscription) {
     throw new Error("No subscription found for this user.");
   }
-  if (subscription.status !== import_client16.SubscriptionStatus.ACTIVE || !subscription.providerSubId) {
+  if (subscription.status !== SubscriptionStatus2.ACTIVE || !subscription.providerSubId) {
     throw new Error("Subscription is not active or cannot be canceled.");
   }
   await stripe.subscriptions.update(subscription.providerSubId, {
@@ -4188,20 +4179,20 @@ var getPurchaseInfo = async (userId, mediaId) => {
     where: {
       userId,
       mediaId,
-      paymentStatus: import_client16.PaymentStatus.COMPLETED
+      paymentStatus: PaymentStatus2.COMPLETED
     }
   });
   if (!purchase) {
     throw new AppError_default(
-      import_http_status28.default.NOT_FOUND,
+      status28.NOT_FOUND,
       "No valid completed purchase found for this media."
     );
   }
-  if (purchase.type === import_client16.PurchaseType.RENTAL) {
+  if (purchase.type === PurchaseType.RENTAL) {
     const now = /* @__PURE__ */ new Date();
     if (!purchase.accessExpiresAt || purchase.accessExpiresAt < now) {
       throw new AppError_default(
-        import_http_status28.default.FORBIDDEN,
+        status28.FORBIDDEN,
         "Your rental period for this media has expired."
       );
     }
@@ -4215,18 +4206,18 @@ var getSubscriptionInfo = async (userId) => {
     }
   });
   if (!subscription) {
-    throw new AppError_default(import_http_status28.default.NOT_FOUND, "User is not subscribed.");
+    throw new AppError_default(status28.NOT_FOUND, "User is not subscribed.");
   }
   const now = /* @__PURE__ */ new Date();
-  if (subscription.status !== import_client16.SubscriptionStatus.ACTIVE) {
+  if (subscription.status !== SubscriptionStatus2.ACTIVE) {
     throw new AppError_default(
-      import_http_status28.default.FORBIDDEN,
+      status28.FORBIDDEN,
       `Subscription is not active. Current status: ${subscription.status}`
     );
   }
   if (subscription.currentPeriodEnd < now) {
     throw new AppError_default(
-      import_http_status28.default.FORBIDDEN,
+      status28.FORBIDDEN,
       "Subscription access period has expired."
     );
   }
@@ -4261,25 +4252,25 @@ var PaymentService = {
 };
 
 // src/app/modules/purchase/purchase.controller.ts
-var import_http_status29 = __toESM(require("http-status"));
+import status29 from "http-status";
 var handleStripeWebhookEvent2 = catchAsync(async (req, res) => {
   const signature = req.headers["stripe-signature"];
   const webhookSecret = config_default.STRIPE_WEBHOOK_SECRET;
   if (!signature || !webhookSecret) {
     console.error("Missing Stripe signature or webhook secret");
-    return res.status(import_http_status29.default.BAD_REQUEST).json({ message: "Missing Stripe signature or webhook secret" });
+    return res.status(status29.BAD_REQUEST).json({ message: "Missing Stripe signature or webhook secret" });
   }
   let event;
   try {
     event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
   } catch (error) {
     console.error("Error processing Stripe webhook:", error);
-    return res.status(import_http_status29.default.BAD_REQUEST).json({ message: "Error processing Stripe webhook" });
+    return res.status(status29.BAD_REQUEST).json({ message: "Error processing Stripe webhook" });
   }
   try {
     const result = await PaymentService.handleStripeWebhookEvent(event);
     sendResponse(res, {
-      httpStatusCode: import_http_status29.default.OK,
+      httpStatusCode: status29.OK,
       success: true,
       message: "Stripe webhook event processed successfully",
       data: result
@@ -4287,7 +4278,7 @@ var handleStripeWebhookEvent2 = catchAsync(async (req, res) => {
   } catch (error) {
     console.error("Error handling Stripe webhook event:", error);
     sendResponse(res, {
-      httpStatusCode: import_http_status29.default.INTERNAL_SERVER_ERROR,
+      httpStatusCode: status29.INTERNAL_SERVER_ERROR,
       success: false,
       message: "Error handling Stripe webhook event"
     });
@@ -4298,7 +4289,7 @@ var createCheckout = catchAsync(async (req, res) => {
   const { mediaId, type } = req.body;
   const result = await PaymentService.createCheckoutSession(userId, mediaId, type);
   sendResponse(res, {
-    httpStatusCode: import_http_status29.default.OK,
+    httpStatusCode: status29.OK,
     success: true,
     message: "Checkout session created successfully",
     data: result
@@ -4307,11 +4298,11 @@ var createCheckout = catchAsync(async (req, res) => {
 var cancelSubscription2 = catchAsync(async (req, res) => {
   const userId = req.user?.userId;
   if (!userId) {
-    return res.status(import_http_status29.default.UNAUTHORIZED).json({ message: "Not authenticated" });
+    return res.status(status29.UNAUTHORIZED).json({ message: "Not authenticated" });
   }
   const result = await PaymentService.cancelSubscription(userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status29.default.OK,
+    httpStatusCode: status29.OK,
     success: true,
     message: "Subscription successfully set to cancel at the end of the billing period.",
     data: result
@@ -4320,11 +4311,11 @@ var cancelSubscription2 = catchAsync(async (req, res) => {
 var createCustomerPortal2 = catchAsync(async (req, res) => {
   const userId = req.user?.userId;
   if (!userId) {
-    return res.status(import_http_status29.default.UNAUTHORIZED).json({ message: "Not authenticated" });
+    return res.status(status29.UNAUTHORIZED).json({ message: "Not authenticated" });
   }
   const result = await PaymentService.createCustomerPortal(userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status29.default.OK,
+    httpStatusCode: status29.OK,
     success: true,
     message: "Customer portal session created successfully",
     data: result
@@ -4335,7 +4326,7 @@ var getPurchaseInfo2 = catchAsync(async (req, res) => {
   const mediaId = req.params.id;
   const result = await PaymentService.getPurchaseInfo(user.userId, mediaId);
   sendResponse(res, {
-    httpStatusCode: import_http_status29.default.OK,
+    httpStatusCode: status29.OK,
     message: "Purchase data retrieved successful",
     success: true,
     data: result
@@ -4345,7 +4336,7 @@ var getSubscriptionInfo2 = catchAsync(async (req, res) => {
   const user = req.user;
   const result = await PaymentService.getSubscriptionInfo(user.userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status29.default.OK,
+    httpStatusCode: status29.OK,
     message: "Subscription data retrieved successful",
     success: true,
     data: result
@@ -4355,7 +4346,7 @@ var getUserPurchaseHistory2 = catchAsync(async (req, res) => {
   const user = req.user;
   const result = await PaymentService.getUserPurchaseHistory(user.userId);
   sendResponse(res, {
-    httpStatusCode: import_http_status29.default.OK,
+    httpStatusCode: status29.OK,
     message: "Purchase history retrieved",
     success: true,
     data: result
@@ -4372,43 +4363,43 @@ var PaymentController = {
 };
 
 // src/app/modules/purchase/payment.routes.ts
-var import_client17 = require("@prisma/client");
-var router14 = import_express14.default.Router();
+import { Role as Role13 } from "@prisma/client";
+var router14 = express2.Router();
 router14.post(
   "/stripe/webhook",
-  import_express14.default.raw({ type: "application/json" }),
+  express2.raw({ type: "application/json" }),
   PaymentController.handleStripeWebhookEvent
 );
 router14.post(
   "/create-checkout",
-  import_express14.default.json(),
+  express2.json(),
   // Parse normal JSON
-  checkAuth(import_client17.Role.USER),
+  checkAuth(Role13.USER),
   // Ensure they are logged in
   PaymentController.createCheckout
 );
 router14.post(
   "/cancel-subscription",
-  import_express14.default.json(),
-  checkAuth(import_client17.Role.USER, import_client17.Role.ADMIN, import_client17.Role.SUPER_ADMIN),
+  express2.json(),
+  checkAuth(Role13.USER, Role13.ADMIN, Role13.SUPER_ADMIN),
   PaymentController.cancelSubscription
 );
 router14.post(
   "/customer-portal",
-  import_express14.default.json(),
-  checkAuth(import_client17.Role.USER),
+  express2.json(),
+  checkAuth(Role13.USER),
   PaymentController.createCustomerPortal
 );
-router14.get("/getPurchase/:id", checkAuth(import_client17.Role.ADMIN, import_client17.Role.SUPER_ADMIN, import_client17.Role.USER), PaymentController.getPurchaseInfo);
-router14.get("/getSubscription", checkAuth(import_client17.Role.ADMIN, import_client17.Role.SUPER_ADMIN, import_client17.Role.USER), PaymentController.getSubscriptionInfo);
-router14.get("/payment-history", checkAuth(import_client17.Role.USER, import_client17.Role.ADMIN, import_client17.Role.SUPER_ADMIN), PaymentController.getUserPurchaseHistory);
+router14.get("/getPurchase/:id", checkAuth(Role13.ADMIN, Role13.SUPER_ADMIN, Role13.USER), PaymentController.getPurchaseInfo);
+router14.get("/getSubscription", checkAuth(Role13.ADMIN, Role13.SUPER_ADMIN, Role13.USER), PaymentController.getSubscriptionInfo);
+router14.get("/payment-history", checkAuth(Role13.USER, Role13.ADMIN, Role13.SUPER_ADMIN), PaymentController.getUserPurchaseHistory);
 var PaymentRoutes = router14;
 
 // src/app.ts
-var import_path3 = __toESM(require("path"));
-var app = (0, import_express15.default)();
+import path3 from "path";
+var app = express3();
 app.set("view engine", "ejs");
-app.set("views", import_path3.default.resolve(process.cwd(), `src/app/templates`));
+app.set("views", path3.resolve(process.cwd(), `src/app/templates`));
 var corsOptions = {
   origin: [
     config_default.BETTER_AUTH_URL,
@@ -4419,20 +4410,20 @@ var corsOptions = {
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 };
-app.use((0, import_cors.default)(corsOptions));
-app.use((0, import_cookie_parser.default)());
+app.use(cors(corsOptions));
+app.use(cookieParser());
 app.get("/api/v1/auth/login/google", AuthController.googleLogin);
 app.get("/api/v1/auth/google/success", AuthController.googleLoginSuccess);
 app.get("/api/v1/auth/oauth/error", AuthController.handleOAuthError);
 app.use(
   "/api/v1/payment/stripe/webhook",
-  import_express15.default.raw({ type: "application/json" })
+  express3.raw({ type: "application/json" })
 );
 app.use("/api/v1/payment", PaymentRoutes);
-app.use(import_express15.default.json());
-app.use(import_express15.default.urlencoded({ extended: true }));
+app.use(express3.json());
+app.use(express3.urlencoded({ extended: true }));
 app.use("/api/v1", IndexRoutes);
-app.use("/api/v1/auth", (0, import_node.toNodeHandler)(auth));
+app.use("/api/v1/auth", toNodeHandler(auth));
 app.get("/", (req, res) => {
   res.send("Hello from Apollo Gears World!");
 });
@@ -4442,3 +4433,6 @@ var app_default = app;
 
 // api/_source.ts
 var source_default = app_default;
+export {
+  source_default as default
+};
